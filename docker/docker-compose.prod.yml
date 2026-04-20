@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: guest_registration_v2_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: guest_registration
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+    volumes:
+      - postgres_data_v2:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  app:
+    image: registry.rlt.sk/guest-registration-v2:${TAG:-latest}
+    pull_policy: always
+    container_name: guest_registration_v2_app
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/guest_registration
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-guest_reg_session}
+      SESSION_COOKIE_SECURE: "true"
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-guest-registration}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      LOG_LEVEL: info
+    ports:
+      - "6599:3000"
+
+volumes:
+  postgres_data_v2:
