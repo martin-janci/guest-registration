@@ -20,9 +20,33 @@ model User {
   passwordHash String
   role         UserRole  @default(ADMIN)
   createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
-  sessions Session[]
+  // Admin contact / branding (used on invoices, emails)
+  companyName           String?
+  companyIco            String?
+  companyVat            String?
+  contactName           String?
+  contactPhone          String?
+  contactAddress        String?
+  contactWebsite        String?
+  contactDescription    String?
+  customLine1           String?
+  customLine2           String?
+  customLine3           String?
+
+  // Preferences
+  photoRequiredAdults   Boolean  @default(true)
+  photoRequiredChildren Boolean  @default(true)
+  dateFormat            String   @default("d.M.y")
+  defaultHousekeeperPay Decimal  @default(20) @db.Decimal(10, 2)
+
+  sessions            Session[]
+  ownedProperties     Property[]            @relation("PropertyOwner")
+  housekeeperAssignments PropertyHousekeeper[] @relation("AssignmentHousekeeper")
+
+  @@index([deletedAt])
 }
 
 model Session {
@@ -32,4 +56,35 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Property {
+  id        Int       @id @default(autoincrement())
+  name      String
+  ownerId   Int
+  owner     User      @relation("PropertyOwner", fields: [ownerId], references: [id])
+  maxGuests Int?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  housekeepers PropertyHousekeeper[]
+
+  @@index([ownerId])
+  @@index([deletedAt])
+}
+
+model PropertyHousekeeper {
+  propertyId    Int
+  housekeeperId Int
+  isDefault     Boolean   @default(false)
+  payOverride   Decimal?  @db.Decimal(10, 2)
+  createdAt     DateTime  @default(now())
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  housekeeper User     @relation("AssignmentHousekeeper", fields: [housekeeperId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, housekeeperId])
+  @@index([housekeeperId])
 }
