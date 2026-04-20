@@ -30,12 +30,25 @@ export async function getPropertyById(id: number): Promise<PropertyWithOwner | n
 
 export async function createProperty(input: CreatePropertyInput): Promise<Property> {
   const data = createPropertySchema.parse(input);
-  return prisma.property.create({ data });
+  return prisma.property.create({
+    data: {
+      ...data,
+      maxGuests: data.maxGuests ?? null,
+      notes: data.notes ?? null,
+    },
+  });
 }
 
 export async function updateProperty(id: number, input: UpdatePropertyInput): Promise<Property> {
   const data = updatePropertySchema.parse(input);
-  return prisma.property.update({ where: { id }, data });
+  return prisma.property.update({
+    where: { id },
+    data: {
+      ...data,
+      maxGuests: data.maxGuests ?? null,
+      notes: data.notes ?? null,
+    },
+  });
 }
 
 export async function softDeleteProperty(id: number): Promise<Property> {
