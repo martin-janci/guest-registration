@@ -33,7 +33,7 @@
 | Language | TypeScript strict | End-to-end types |
 | Database | PostgreSQL 16 (new container, separate from legacy) | Clean slate for schema redesign |
 | ORM | **Prisma** | Declarative schema, Prisma Studio for ad-hoc DB browsing, fully-typed client |
-| Auth | **Lucia v3** + argon2 + session cookie | Minimal, explicit; closest to today's Flask-Login mental model |
+| Auth | **In-house session cookie** (~150 LOC in `src/modules/auth/`) + argon2 | Lucia v3 was deprecated by its authors; we follow their post-deprecation guidance and inline session auth. SHA-256-hashed tokens in DB, 30-day sliding refresh. |
 | UI | Tailwind CSS 4 + shadcn/ui | Mobile-first, copy-pasteable components, low learning curve |
 | Forms | react-hook-form + zod | Shared schemas between client and server |
 | i18n | next-intl | Native App Router support; locales `en`, `cs`, `sk` |
@@ -185,11 +185,13 @@ model User {
   sessions              Session[]
 }
 
-model Session {                             // Lucia session store
+model Session {                             // In-house session store; id = sha256(token)
   id        String   @id
   userId    Int
   expiresAt DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // DOMAIN
@@ -385,7 +387,7 @@ model Job {
 5. Redirect to `/register/<confirmCode>/success`.
 
 ### 5.2 Admin login and dashboard
-1. `/login` → POST credentials → Lucia verifies argon2 hash → writes `Session` row + sets `auth_session` cookie.
+1. `/login` → Server Action verifies argon2 hash → generates 160-bit random token, stores `sha256(token)` as `Session.id`, sets HTTP-only `guest_reg_session` cookie carrying the raw token.
 2. Middleware on `/admin/*` checks cookie; no session → 302 to `/login`.
 3. `/admin/dashboard` Server Component queries KPIs directly via Prisma.
 
