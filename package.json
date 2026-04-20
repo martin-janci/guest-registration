@@ -21,6 +21,7 @@
     "create-admin": "tsx scripts/create-admin.ts"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
     "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^5.22.0",
     "class-variance-authority": "^0.7.1",
@@ -30,6 +31,7 @@
     "pino": "^9.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.72.1",
     "tailwind-merge": "^3.5.0",
     "zod": "^3.23.8"
   },
