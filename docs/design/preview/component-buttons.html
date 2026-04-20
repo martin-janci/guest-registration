@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 24px; background: var(--bg); }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .row + .row { margin-top: 14px; }
+  .caption { font-family: var(--font-mono); font-size: 11px; color: var(--fg-subtle); min-width: 80px; }
+</style></head><body>
+  <div class="row">
+    <span class="caption">primary</span>
+    <button class="btn btn-primary">Save changes</button>
+    <button class="btn btn-primary" style="background: var(--accent-600)">Hover</button>
+    <button class="btn btn-primary" style="background: var(--accent-700)">Active</button>
+    <button class="btn btn-primary" disabled style="opacity:.5; cursor:not-allowed">Disabled</button>
+  </div>
+  <div class="row">
+    <span class="caption">secondary</span>
+    <button class="btn btn-secondary">Cancel</button>
+    <button class="btn btn-secondary" style="background: var(--surface-hover)">Hover</button>
+  </div>
+  <div class="row">
+    <span class="caption">ghost</span>
+    <button class="btn btn-ghost">View details</button>
+    <button class="btn btn-ghost" style="background: var(--surface-2)">Hover</button>
+  </div>
+</body></html>

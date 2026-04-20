@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { margin: 0; padding: 0; background: var(--bg); font-family: var(--font-sans); display: flex; justify-content: center; }
+  .nav { width: 240px; height: 320px; background: var(--surface); border-right: 1px solid var(--border); padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-title { font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 10px 10px; font-weight: 600; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; font-size: 13px; color: var(--fg-muted); border-radius: 6px; cursor: pointer; }
+  .item:hover { background: var(--surface-2); color: var(--fg); }
+  .item.active { background: var(--accent-50); color: var(--accent-700); font-weight: 500; }
+  .item svg { width: 16px; height: 16px; stroke-width: 1.75; }
+  .badge { margin-left: auto; font-size: 11px; background: var(--warning-100); color: var(--warning-700); padding: 1px 6px; border-radius: 10px; font-weight: 500; }
+</style></head><body>
+  <nav class="nav">
+    <div class="nav-title">Main</div>
+    <div class="item active"><i data-lucide="layout-dashboard"></i>Dashboard</div>
+    <div class="item"><i data-lucide="home"></i>Properties</div>
+    <div class="item"><i data-lucide="calendar"></i>Calendars</div>
+    <div class="item"><i data-lucide="plane"></i>Trips</div>
+    <div class="item"><i data-lucide="clipboard-check"></i>Registrations<span class="badge">5</span></div>
+    <div class="item"><i data-lucide="receipt"></i>Invoices</div>
+    <div class="item"><i data-lucide="sparkles"></i>Housekeeping</div>
+  </nav>
+  <script>lucide.createIcons();</script>
+</body></html>

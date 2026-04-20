@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 24px; background: var(--bg); font-family: var(--font-mono); }
+  .row { display: flex; gap: 24px; align-items: flex-end; }
+  .cell { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+  .box { width: 72px; height: 52px; background: var(--surface); border: 1px solid var(--border-strong); }
+  .label { font-size: 11px; color: var(--fg-subtle); }
+  .name { font-size: 10px; color: var(--fg-muted); }
+</style></head><body>
+  <div class="row">
+    <div class="cell"><div class="box" style="border-radius:var(--radius-sm)"></div><div class="label">4px</div><div class="name">sm · pills</div></div>
+    <div class="cell"><div class="box" style="border-radius:var(--radius-md)"></div><div class="label">6px</div><div class="name">md · buttons / inputs</div></div>
+    <div class="cell"><div class="box" style="border-radius:var(--radius-lg)"></div><div class="label">8px</div><div class="name">lg · cards</div></div>
+    <div class="cell"><div class="box" style="border-radius:var(--radius-xl)"></div><div class="label">12px</div><div class="name">xl · hero cards</div></div>
+    <div class="cell"><div class="box" style="border-radius:var(--radius-full)"></div><div class="label">full</div><div class="name">avatars / dots</div></div>
+  </div>
+</body></html>

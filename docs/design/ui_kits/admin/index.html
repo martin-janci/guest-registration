@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin dashboard · airbnb.rlt.sk</title>
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: var(--bg); min-height: 100vh; }
+    * { box-sizing: border-box; }
+    a { color: var(--accent-600); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .shell { display: flex; min-height: 100vh; }
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .content { padding: 24px 28px; max-width: 1440px; width: 100%; margin: 0 auto; }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .two-col { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+    @media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" src="./Shell.jsx"></script>
+  <script type="text/babel" src="./Widgets.jsx"></script>
+  <script type="text/babel">
+    const App = () => {
+      const [active, setActive] = React.useState("dashboard");
+      React.useEffect(() => {
+        const t = setInterval(() => { if (window.lucide) window.lucide.createIcons(); }, 200);
+        return () => clearInterval(t);
+      }, [active]);
+
+      const titles = {
+        dashboard: "Dashboard", trips: "Trips", registrations: "Registrations", invoices: "Invoices",
+        housekeeping: "Housekeeping", properties: "Properties", calendars: "Calendars", users: "Users", settings: "Settings"
+      };
+      return (
+        <div className="shell">
+          <Sidebar active={active} onNav={setActive} />
+          <div className="main">
+            <TopBar title={titles[active]} />
+            <div className="content">
+              {active === "dashboard" && (
+                <>
+                  <div className="kpi-row">
+                    <Kpi label="Arrivals this week" value="12" delta="▲ 3 vs last week" tone="up" />
+                    <Kpi label="Pending registrations" value="5" delta="Needs attention" tone="warn" />
+                    <Kpi label="Unpaid housekeeping" value="€ 240" delta="3 tasks" tone="muted" />
+                    <Kpi label="Overdue invoices" value="€ 840" delta="2 invoices" tone="danger" />
+                  </div>
+                  <div className="two-col">
+                    <RecentTrips />
+                    <AttentionList />
+                  </div>
+                </>
+              )}
+              {active !== "dashboard" && (
+                <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10, color: "var(--fg-muted)" }}>
+                  <div style={{ width: 48, height: 48, margin: "0 auto 12px", borderRadius: 10, background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <AdminIcon name="construction" size={22} />
+                  </div>
+                  <div style={{ color: "var(--fg)", fontWeight: 500, marginBottom: 4 }}>{titles[active]}</div>
+                  <div style={{ fontSize: 13 }}>This screen is scaffolded in the design system. See Dashboard for the full kit.</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

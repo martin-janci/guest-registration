@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Housekeeper · airbnb.rlt.sk</title>
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    html, body { margin: 0; padding: 0; background: var(--bg); min-height: 100vh; }
+    * { box-sizing: border-box; }
+    body { padding-bottom: 64px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" src="./Components.jsx"></script>
+  <script type="text/babel" src="./TaskDetail.jsx"></script>
+  <script type="text/babel">
+    const App = () => {
+      const [tab, setTab] = React.useState("today");
+      const [openTaskId, setOpenTaskId] = React.useState(null);
+      const [tasks, setTasks] = React.useState([
+        { id: 1, property: "Tatranská Perla — Apt 2B", date: "Today, 20 Apr", pay: 25.00, status: "pending", paid: false, photos: [] },
+        { id: 2, property: "Donovaly Cottage", date: "Today, 20 Apr", pay: 30.00, status: "in_progress", paid: false, photos: [{id:1,queued:true},{id:2,queued:true}], notes: "Guest requested late check-out, clean after 14:00." },
+        { id: 3, property: "Bratislava Loft", date: "Tomorrow, 21 Apr", pay: 25.00, status: "pending", paid: false, photos: [] },
+        { id: 4, property: "Tatranská Perla — Apt 1A", date: "Yesterday, 19 Apr", pay: 25.00, status: "completed", paid: true, photos: [{id:1},{id:2},{id:3}] },
+      ]);
+
+      React.useEffect(() => {
+        const t = setInterval(() => { if (window.lucide) window.lucide.createIcons(); }, 200);
+        return () => clearInterval(t);
+      }, [tab, openTaskId, tasks]);
+
+      const openTask = tasks.find(t => t.id === openTaskId);
+      if (openTask) {
+        return <TaskDetail task={openTask} onBack={() => setOpenTaskId(null)}
+          onUpdate={(p) => setTasks(ts => ts.map(t => t.id === openTaskId ? { ...t, ...p } : t))} />;
+      }
+
+      return (
+        <>
+          {tab === "today" && (
+            <>
+              <HkHeader title="Today's tasks" online={false} />
+              <main style={{ padding: "16px 16px 100px", maxWidth: 640, margin: "0 auto" }}>
+                <div style={{ fontSize: 13, color: "var(--fg-muted)", marginBottom: 14 }}>{tasks.filter(t => !t.date.startsWith("Yesterday")).length} tasks · 2 pending upload in queue</div>
+                {tasks.map(t => <TaskCard key={t.id} task={t} onOpen={() => setOpenTaskId(t.id)} />)}
+              </main>
+            </>
+          )}
+          {tab === "pay" && <PaySummary />}
+          {tab === "calendar" && (
+            <>
+              <HkHeader title="Calendar" />
+              <main style={{ padding: 16, maxWidth: 640, margin: "0 auto", color: "var(--fg-muted)", textAlign: "center", paddingTop: 60 }}>
+                <HkIcon name="calendar" size={48} /><div style={{ marginTop: 12 }}>Calendar view lives here.</div>
+              </main>
+            </>
+          )}
+          {tab === "me" && (
+            <>
+              <HkHeader title="Me" />
+              <main style={{ padding: 16, maxWidth: 640, margin: "0 auto" }}>
+                <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--accent-500)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 600 }}>EP</div>
+                  <div><div style={{ fontWeight: 600, color: "var(--fg)" }}>Eva Polanská</div><div style={{ fontSize: 13, color: "var(--fg-muted)" }}>Housekeeper · since Jan 2024</div></div>
+                </div>
+              </main>
+            </>
+          )}
+          <BottomTabs active={tab} onChange={setTab} />
+        </>
+      );
+    };
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

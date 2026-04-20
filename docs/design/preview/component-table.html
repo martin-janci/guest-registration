@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { margin: 0; padding: 16px; background: var(--bg); font-family: var(--font-sans); }
+  table { width: 100%; max-width: 700px; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-size: 13px; }
+  thead th { background: var(--surface-2); color: var(--fg-muted); font-weight: 500; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  tbody td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--fg); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+  .mono { font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted); }
+  .icon-btn { background: transparent; border: none; padding: 4px; border-radius: 4px; cursor: pointer; color: var(--fg-muted); }
+  .icon-btn:hover { background: var(--surface-hover); color: var(--fg); }
+  .icon-btn svg { width: 16px; height: 16px; }
+</style></head><body>
+  <table>
+    <thead><tr><th>Guest</th><th>Trip</th><th>Status</th><th>Submitted</th><th style="width:40px"></th></tr></thead>
+    <tbody>
+      <tr><td>Anna Novotná</td><td class="mono">HMXYZ123</td><td><span class="pill pill-warning"><span style="width:6px;height:6px;background:var(--warning-500);border-radius:50%"></span>Pending</span></td><td>19 Apr, 14:32</td><td><button class="icon-btn"><i data-lucide="more-horizontal"></i></button></td></tr>
+      <tr><td>Tomáš Dvořák</td><td class="mono">HMABC456</td><td><span class="pill pill-success"><span style="width:6px;height:6px;background:var(--success-500);border-radius:50%"></span>Approved</span></td><td>18 Apr, 09:10</td><td><button class="icon-btn"><i data-lucide="more-horizontal"></i></button></td></tr>
+      <tr><td>Lukas Müller</td><td class="mono">HMDEF789</td><td><span class="pill pill-danger"><span style="width:6px;height:6px;background:var(--danger-500);border-radius:50%"></span>Rejected</span></td><td>17 Apr, 22:04</td><td><button class="icon-btn"><i data-lucide="more-horizontal"></i></button></td></tr>
+    </tbody>
+  </table>
+  <script>lucide.createIcons();</script>
+</body></html>

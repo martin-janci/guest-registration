@@ -1,0 +1,75 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); font-family: var(--font-sans); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 660px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .lbl { font-size: 13px; color: var(--fg); font-weight: 500; }
+  .help { font-size: 12px; color: var(--fg-muted); }
+  .err { font-size: 12px; color: var(--danger-700); }
+  .input-err { border-color: var(--danger-500) !important; box-shadow: 0 0 0 3px oklch(0.59 0.21 25 / 0.15); }
+  .input-focus { border-color: var(--accent-500) !important; box-shadow: var(--shadow-focus-ring); background: var(--surface) !important; }
+  .caret { display: inline-block; width: 1.5px; height: 16px; background: var(--accent-600); vertical-align: middle; margin-left: 1px; animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  select.input { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8fa3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+  /* Custom dropdown panel — high-contrast selected + hover states */
+  .select-wrap { position: relative; }
+  .select-trigger { display: flex; align-items: center; justify-content: space-between; }
+  .select-trigger .chev { color: var(--fg-muted); }
+  .menu { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); padding: 4px; z-index: 10; }
+  .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: var(--radius-sm); font-size: 14px; color: var(--fg); cursor: pointer; }
+  .menu-item:hover { background: var(--surface-2); }
+  .menu-item.is-selected { background: var(--accent-500); color: var(--neutral-950); font-weight: 600; }
+  .menu-item.is-selected .tick { color: var(--neutral-950); }
+  .menu-item.is-selected:hover { background: var(--accent-400); }
+  .tick { width: 14px; height: 14px; }
+  select option:checked { background: var(--accent-500); color: #fff; }
+  select option { padding: 6px 10px; color: var(--fg); background: var(--surface); }
+</style></head><body>
+  <div class="grid">
+    <div class="field">
+      <label class="lbl">First name</label>
+      <input class="input" value="Anna"/>
+      <span class="help">As shown on the document</span>
+    </div>
+    <div class="field">
+      <label class="lbl">Document number</label>
+      <input class="input" placeholder="e.g. P1234567"/>
+    </div>
+    <div class="field" style="grid-column: 1 / -1">
+      <label class="lbl" style="color: var(--accent-500); font-weight: 600">Document type · dropdown open</label>
+      <div class="select-wrap">
+        <div class="input input-focus select-trigger" style="cursor: pointer;">
+          <span>Passport</span>
+          <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="menu">
+          <div class="menu-item is-selected">
+            <span>Passport</span>
+            <svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="menu-item">Driving license</div>
+          <div class="menu-item">Citizen ID</div>
+          <div class="menu-item">Residence permit</div>
+        </div>
+      </div>
+      <span class="help" style="margin-top: 88px">Selected row uses accent fill + white text (AA on accent-500). Hover is neutral surface-2 — never competing with the selected row.</span>
+    </div>
+    <div class="field">
+      <label class="lbl">Email · error</label>
+      <input class="input input-err" value="not-an-email"/>
+      <span class="err">Enter a valid email address</span>
+    </div>
+    <div class="field">
+      <label class="lbl">Country · native select</label>
+      <select class="input" size="4" style="height: auto; padding: 4px;">
+        <option>Slovakia</option>
+        <option selected>Czech Republic</option>
+        <option>Germany</option>
+        <option>Austria</option>
+      </select>
+      <span class="help">Native option:checked overridden to accent + white</span>
+    </div>
+  </div>
+</body></html>

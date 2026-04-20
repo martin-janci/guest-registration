@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 24px; background: var(--bg); font-family: var(--font-mono); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .cell { border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--surface); }
+  .swatch { height: 32px; border-radius: 6px; margin-bottom: 10px; }
+  .name { font-size: 12px; color: var(--fg); font-weight: 500; margin-bottom: 2px; }
+  .use  { font-size: 10px; color: var(--fg-subtle); line-height: 1.4; font-family: var(--font-sans); }
+</style></head><body>
+  <div class="grid">
+    <div class="cell"><div class="swatch" style="background:var(--success-500)"></div><div class="name">Success</div><div class="use">approved, paid, completed</div></div>
+    <div class="cell"><div class="swatch" style="background:var(--warning-500)"></div><div class="name">Warning</div><div class="use">pending review, overdue soon</div></div>
+    <div class="cell"><div class="swatch" style="background:var(--danger-500)"></div><div class="name">Danger</div><div class="use">rejected, overdue, sync failed</div></div>
+    <div class="cell"><div class="swatch" style="background:var(--info-500)"></div><div class="name">Info</div><div class="use">draft, neutral notice</div></div>
+  </div>
+</body></html>

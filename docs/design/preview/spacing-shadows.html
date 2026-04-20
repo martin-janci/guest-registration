@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 32px; background: var(--bg); font-family: var(--font-mono); }
+  .row { display: flex; gap: 28px; }
+  .cell { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .box { width: 110px; height: 70px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); }
+  .label { font-size: 11px; color: var(--fg); font-weight: 500; font-family: var(--font-sans); }
+  .name { font-size: 10px; color: var(--fg-subtle); }
+</style></head><body>
+  <div class="row">
+    <div class="cell"><div class="box" style="box-shadow: var(--shadow-xs)"></div><div class="label">xs</div><div class="name">card lift</div></div>
+    <div class="cell"><div class="box" style="box-shadow: var(--shadow-sm)"></div><div class="label">sm</div><div class="name">dropdown</div></div>
+    <div class="cell"><div class="box" style="box-shadow: var(--shadow-md)"></div><div class="label">md</div><div class="name">modal</div></div>
+    <div class="cell"><div class="box" style="box-shadow: var(--shadow-lg)"></div><div class="label">lg</div><div class="name">popover</div></div>
+    <div class="cell"><div class="box" style="box-shadow: var(--shadow-focus-ring); border-color: var(--border-focus)"></div><div class="label">focus ring</div><div class="name">accessibility</div></div>
+  </div>
+</body></html>

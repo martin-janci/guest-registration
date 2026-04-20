@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 48" width="340" height="48">
+  <g transform="translate(4, 8)">
+    <rect x="0" y="4" width="32" height="28" rx="6" fill="oklch(0.52 0.17 258)"></rect>
+    <path d="M8 20 L16 12 L24 20 L24 26 L18 26 L18 22 L14 22 L14 26 L8 26 Z" fill="white"></path>
+    <circle cx="26" cy="8" r="3" fill="oklch(0.74 0.155 75)"></circle>
+  </g>
+  <text x="48" y="26" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Roboto, sans-serif" font-size="15" font-weight="600" letter-spacing="-0.3" fill="oklch(0.175 0.018 258)">Guest Registration<tspan fill="oklch(0.52 0.17 258)"> System</tspan></text>
+  <text x="48" y="40" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="500" letter-spacing="0.4" fill="oklch(0.50 0.015 258)">airbnb.rlt.sk</text>
+</svg>

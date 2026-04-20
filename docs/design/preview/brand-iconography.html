@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); font-family: var(--font-sans); }
+  .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 14px 10px; max-width: 660px; }
+  .c { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; }
+  .c svg { width: 22px; height: 22px; color: var(--fg); stroke-width: 1.75; }
+  .c .n { font-size: 10px; color: var(--fg-subtle); font-family: var(--font-mono); text-align: center; }
+</style></head><body>
+  <div class="grid">
+    <div class="c"><i data-lucide="user"></i><span class="n">user</span></div>
+    <div class="c"><i data-lucide="users"></i><span class="n">users</span></div>
+    <div class="c"><i data-lucide="home"></i><span class="n">home</span></div>
+    <div class="c"><i data-lucide="calendar"></i><span class="n">calendar</span></div>
+    <div class="c"><i data-lucide="plane"></i><span class="n">plane</span></div>
+    <div class="c"><i data-lucide="clipboard-check"></i><span class="n">clipboard</span></div>
+    <div class="c"><i data-lucide="receipt"></i><span class="n">receipt</span></div>
+    <div class="c"><i data-lucide="sparkles"></i><span class="n">sparkles</span></div>
+    <div class="c"><i data-lucide="upload"></i><span class="n">upload</span></div>
+    <div class="c"><i data-lucide="camera"></i><span class="n">camera</span></div>
+    <div class="c"><i data-lucide="mail"></i><span class="n">mail</span></div>
+    <div class="c"><i data-lucide="qr-code"></i><span class="n">qr</span></div>
+    <div class="c"><i data-lucide="copy"></i><span class="n">copy</span></div>
+    <div class="c"><i data-lucide="check-circle-2"></i><span class="n">check</span></div>
+    <div class="c"><i data-lucide="alert-circle"></i><span class="n">alert</span></div>
+    <div class="c"><i data-lucide="globe"></i><span class="n">globe</span></div>
+  </div>
+  <script>lucide.createIcons();</script>
+</body></html>
