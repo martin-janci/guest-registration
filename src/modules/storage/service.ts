@@ -1,7 +1,7 @@
 import type { Readable } from 'node:stream';
-import { minio, ensureBucket } from './client.js';
+import { minio, ensureBucket } from './client';
 import { env } from '@/lib/env';
-import { uploadFileValidation } from './schema.js';
+import { uploadFileValidation } from './schema';
 
 export async function uploadFile(key: string, file: File): Promise<void> {
   const validated = uploadFileValidation.parse(file);
