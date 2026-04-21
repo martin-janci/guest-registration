@@ -9,9 +9,11 @@ import {
 } from 'lucide-react';
 import { requireAdmin } from '@/lib/authz';
 import { getUpcomingForAdmin } from '@/modules/trips/service';
+import { listRegistrations } from '@/modules/registrations/service';
 import { KpiCard } from '@/components/admin/kpi-card';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pill } from '@/components/ui/pill';
+import { Button } from '@/components/ui/button';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +22,7 @@ interface AttentionItem {
   tone: 'warning' | 'danger';
   title: string;
   meta: string;
+  href: string;
   action: string;
 }
 
@@ -27,20 +30,32 @@ function fmtDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
+function shortWhen(d: Date): string {
+  return d.toISOString().replace('T', ' ').slice(5, 16);
+}
+
 export default async function DashboardPage() {
   const admin = await requireAdmin();
-  const upcoming = await getUpcomingForAdmin(admin.id);
+  const [upcoming, pendingRegs] = await Promise.all([
+    getUpcomingForAdmin(admin.id),
+    listRegistrations({ status: 'PENDING' }),
+  ]);
 
   const kpis = [
     { label: 'Arrivals this week', value: upcoming.length, icon: Plane },
-    { label: 'Pending registrations', value: 0, icon: ClipboardCheck, delta: 'wires in M4', tone: 'neutral' as const },
+    { label: 'Pending registrations', value: pendingRegs.length, icon: ClipboardCheck, tone: (pendingRegs.length > 0 ? 'warning' : 'neutral') as 'warning' | 'neutral' },
     { label: 'Unpaid housekeeping', value: 0, icon: Sparkles, delta: 'wires in M6', tone: 'neutral' as const },
     { label: 'Overdue invoices', value: 0, icon: Receipt, delta: 'wires in M5', tone: 'neutral' as const },
   ];
 
-  // M3 — no real source yet for pending reviews / sync failures / overdue invoices.
-  // Show a static "nothing right now" list rather than fake data.
-  const attention: AttentionItem[] = [];
+  const attention: AttentionItem[] = pendingRegs.slice(0, 5).map((r) => ({
+    icon: ClipboardCheck,
+    tone: 'warning',
+    title: `${r.guests[0]?.firstName ?? 'A guest'} submitted a registration`,
+    meta: `${r.trip.property.name} · ${shortWhen(r.submittedAt)}`,
+    href: `/admin/registrations/${r.id}`,
+    action: 'Review',
+  }));
 
   return (
     <div className="flex flex-col gap-8">
@@ -76,7 +91,28 @@ export default async function DashboardPage() {
               <p className="text-sm text-fg-muted">Nothing to review right now.</p>
             </div>
           ) : (
-            <ul>{/* wires in M4+ */}</ul>
+            <ul>
+              {attention.map((it, i) => {
+                const Icon = it.icon;
+                return (
+                  <li
+                    key={i}
+                    className={`flex items-center gap-3 px-4 py-3 ${i < attention.length - 1 ? 'border-b border-border' : ''}`}
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-warning-100 text-warning-700">
+                      <Icon className="h-4 w-4" strokeWidth={1.75} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-fg">{it.title}</div>
+                      <div className="truncate text-xs text-fg-muted">{it.meta}</div>
+                    </div>
+                    <Link href={it.href}>
+                      <Button variant="secondary" size="sm">{it.action}</Button>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </Card>
 
@@ -93,9 +129,7 @@ export default async function DashboardPage() {
           {upcoming.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-10 text-center">
               <Plane className="h-8 w-8 text-fg-subtle" strokeWidth={1.5} />
-              <p className="text-sm text-fg-muted">
-                No arrivals in the next 7 days.
-              </p>
+              <p className="text-sm text-fg-muted">No arrivals in the next 7 days.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
