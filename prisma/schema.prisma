@@ -46,6 +46,7 @@ model User {
   ownedProperties     Property[]            @relation("PropertyOwner")
   housekeeperAssignments PropertyHousekeeper[] @relation("AssignmentHousekeeper")
   trips               Trip[]                @relation("TripAdmin")
+  registrationsReviewed Registration[] @relation("RegistrationReviewer")
 
   @@index([deletedAt])
 }
@@ -138,7 +139,62 @@ model Trip {
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
 
+  registrations Registration[]
+
   @@index([propertyId, startDate])
   @@index([adminId, startDate])
   @@index([calendarId])
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DocumentType {
+  PASSPORT
+  DRIVING_LICENSE
+  CITIZEN_ID
+}
+
+enum AgeCategory {
+  ADULT
+  CHILD
+}
+
+model Registration {
+  id           Int                @id @default(autoincrement())
+  tripId       Int
+  trip         Trip               @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  email        String
+  status       RegistrationStatus @default(PENDING)
+  adminComment String?
+  submittedAt  DateTime           @default(now())
+  reviewedAt   DateTime?
+  reviewedBy   Int?
+  reviewer     User?              @relation("RegistrationReviewer", fields: [reviewedBy], references: [id])
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  guests Guest[]
+
+  @@index([tripId])
+  @@index([status])
+}
+
+model Guest {
+  id               Int          @id @default(autoincrement())
+  registrationId   Int
+  registration     Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  firstName        String
+  lastName         String
+  ageCategory      AgeCategory
+  documentType     DocumentType
+  documentNumber   String
+  documentImageKey String?
+  gdprConsent      Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+
+  @@index([registrationId])
 }
