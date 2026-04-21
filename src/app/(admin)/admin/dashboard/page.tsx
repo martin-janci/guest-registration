@@ -10,6 +10,8 @@ import {
 import { requireAdmin } from '@/lib/authz';
 import { getUpcomingForAdmin } from '@/modules/trips/service';
 import { listRegistrations } from '@/modules/registrations/service';
+import { listInvoices, countOverdueForAdmin } from '@/modules/invoices/service';
+import { formatMoney } from '@/lib/money';
 import { KpiCard } from '@/components/admin/kpi-card';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pill } from '@/components/ui/pill';
@@ -26,36 +28,48 @@ interface AttentionItem {
   action: string;
 }
 
-function fmtDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
-
-function shortWhen(d: Date): string {
-  return d.toISOString().replace('T', ' ').slice(5, 16);
-}
+function fmtDate(d: Date): string { return d.toISOString().slice(0, 10); }
+function shortWhen(d: Date): string { return d.toISOString().replace('T', ' ').slice(5, 16); }
 
 export default async function DashboardPage() {
   const admin = await requireAdmin();
-  const [upcoming, pendingRegs] = await Promise.all([
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+
+  const [upcoming, pendingRegs, overdueCount, overdueInvoices] = await Promise.all([
     getUpcomingForAdmin(admin.id),
     listRegistrations({ status: 'PENDING' }),
+    countOverdueForAdmin(admin.id, today),
+    listInvoices(admin.id, { status: 'SENT' }),
   ]);
+
+  const overdueAttention = overdueInvoices.filter((inv) => inv.dueDate && inv.dueDate.getTime() < today.getTime());
 
   const kpis = [
     { label: 'Arrivals this week', value: upcoming.length, icon: Plane },
     { label: 'Pending registrations', value: pendingRegs.length, icon: ClipboardCheck, tone: (pendingRegs.length > 0 ? 'warning' : 'neutral') as 'warning' | 'neutral' },
     { label: 'Unpaid housekeeping', value: 0, icon: Sparkles, delta: 'wires in M6', tone: 'neutral' as const },
-    { label: 'Overdue invoices', value: 0, icon: Receipt, delta: 'wires in M5', tone: 'neutral' as const },
+    { label: 'Overdue invoices', value: overdueCount, icon: Receipt, tone: (overdueCount > 0 ? 'danger' : 'neutral') as 'danger' | 'neutral' },
   ];
 
-  const attention: AttentionItem[] = pendingRegs.slice(0, 5).map((r) => ({
-    icon: ClipboardCheck,
-    tone: 'warning',
-    title: `${r.guests[0]?.firstName ?? 'A guest'} submitted a registration`,
-    meta: `${r.trip.property.name} · ${shortWhen(r.submittedAt)}`,
-    href: `/admin/registrations/${r.id}`,
-    action: 'Review',
-  }));
+  const attention: AttentionItem[] = [
+    ...overdueAttention.slice(0, 3).map((inv) => ({
+      icon: Receipt,
+      tone: 'danger' as const,
+      title: `Invoice ${inv.invoiceNumber} is overdue`,
+      meta: `${inv.clientName} · ${formatMoney(inv.totalAmount.toFixed(2), inv.currency)}`,
+      href: `/admin/invoices/${inv.id}`,
+      action: 'Open',
+    })),
+    ...pendingRegs.slice(0, 5 - Math.min(overdueAttention.length, 3)).map((r) => ({
+      icon: ClipboardCheck,
+      tone: 'warning' as const,
+      title: `${r.guests[0]?.firstName ?? 'A guest'} submitted a registration`,
+      meta: `${r.trip.property.name} · ${shortWhen(r.submittedAt)}`,
+      href: `/admin/registrations/${r.id}`,
+      action: 'Review',
+    })),
+  ];
 
   return (
     <div className="flex flex-col gap-8">
@@ -94,12 +108,10 @@ export default async function DashboardPage() {
             <ul>
               {attention.map((it, i) => {
                 const Icon = it.icon;
+                const bg = it.tone === 'danger' ? 'bg-danger-100 text-danger-700' : 'bg-warning-100 text-warning-700';
                 return (
-                  <li
-                    key={i}
-                    className={`flex items-center gap-3 px-4 py-3 ${i < attention.length - 1 ? 'border-b border-border' : ''}`}
-                  >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-warning-100 text-warning-700">
+                  <li key={i} className={`flex items-center gap-3 px-4 py-3 ${i < attention.length - 1 ? 'border-b border-border' : ''}`}>
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${bg}`}>
                       <Icon className="h-4 w-4" strokeWidth={1.75} />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -119,10 +131,7 @@ export default async function DashboardPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Arriving this week</CardTitle>
-            <Link
-              href="/admin/trips"
-              className="text-xs font-medium text-accent-600 hover:text-accent-700"
-            >
+            <Link href="/admin/trips" className="text-xs font-medium text-accent-600 hover:text-accent-700">
               View all trips
             </Link>
           </CardHeader>
