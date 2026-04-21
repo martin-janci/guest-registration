@@ -11,6 +11,7 @@ import { requireAdmin } from '@/lib/authz';
 import { getUpcomingForAdmin } from '@/modules/trips/service';
 import { listRegistrations } from '@/modules/registrations/service';
 import { listInvoices, countOverdueForAdmin } from '@/modules/invoices/service';
+import { countUnpaidForAdmin } from '@/modules/housekeeping/service';
 import { formatMoney } from '@/lib/money';
 import { KpiCard } from '@/components/admin/kpi-card';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,11 +37,12 @@ export default async function DashboardPage() {
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
 
-  const [upcoming, pendingRegs, overdueCount, overdueInvoices] = await Promise.all([
+  const [upcoming, pendingRegs, overdueCount, overdueInvoices, unpaidHousekeeping] = await Promise.all([
     getUpcomingForAdmin(admin.id),
     listRegistrations({ status: 'PENDING' }),
     countOverdueForAdmin(admin.id, today),
     listInvoices(admin.id, { status: 'SENT' }),
+    countUnpaidForAdmin(admin.id),
   ]);
 
   const overdueAttention = overdueInvoices.filter((inv) => inv.dueDate && inv.dueDate.getTime() < today.getTime());
@@ -48,7 +50,7 @@ export default async function DashboardPage() {
   const kpis = [
     { label: 'Arrivals this week', value: upcoming.length, icon: Plane },
     { label: 'Pending registrations', value: pendingRegs.length, icon: ClipboardCheck, tone: (pendingRegs.length > 0 ? 'warning' : 'neutral') as 'warning' | 'neutral' },
-    { label: 'Unpaid housekeeping', value: 0, icon: Sparkles, delta: 'wires in M6', tone: 'neutral' as const },
+    { label: 'Unpaid housekeeping', value: unpaidHousekeeping, icon: Sparkles, tone: (unpaidHousekeeping > 0 ? 'warning' : 'neutral') as 'warning' | 'neutral' },
     { label: 'Overdue invoices', value: overdueCount, icon: Receipt, tone: (overdueCount > 0 ? 'danger' : 'neutral') as 'danger' | 'neutral' },
   ];
 
@@ -81,16 +83,22 @@ export default async function DashboardPage() {
       </header>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {kpis.map((k) => (
-          <KpiCard
-            key={k.label}
-            label={k.label}
-            value={k.value}
-            {...('delta' in k && k.delta ? { delta: k.delta } : {})}
-            {...('tone' in k && k.tone ? { tone: k.tone } : {})}
-            icon={k.icon}
-          />
-        ))}
+        {kpis.map((k) => {
+          const hasDelta = 'delta' in k && typeof k.delta === 'string';
+          const hasTone = 'tone' in k && !!k.tone;
+          const extras: { delta?: string; tone?: 'neutral' | 'warning' | 'danger' } = {};
+          if (hasDelta) extras.delta = (k as { delta: string }).delta;
+          if (hasTone) extras.tone = (k as { tone: 'neutral' | 'warning' | 'danger' }).tone;
+          return (
+            <KpiCard
+              key={k.label}
+              label={k.label}
+              value={k.value}
+              icon={k.icon}
+              {...extras}
+            />
+          );
+        })}
       </section>
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
