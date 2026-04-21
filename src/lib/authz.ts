@@ -17,3 +17,13 @@ export async function requireAdmin(): Promise<User> {
   }
   return user as User;
 }
+
+/** Require an authenticated housekeeper, admin, or superadmin. Throws AuthError otherwise. */
+export async function requireHousekeeperOrAdmin(): Promise<User> {
+  const { user } = await getCurrentSession();
+  if (!user) throw new AuthError('unauthenticated');
+  if (user.role !== 'ADMIN' && user.role !== 'SUPERADMIN' && user.role !== 'HOUSEKEEPER') {
+    throw new AuthError('forbidden');
+  }
+  return user as User;
+}

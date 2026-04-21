@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { login } from '@/modules/auth/login';
 import { setSessionCookie } from '@/modules/auth/session';
+import { prisma } from '@/db/client';
 
 const schema = z.object({
   username: z.string().min(1),
@@ -24,5 +25,12 @@ export async function loginAction(
   if (!result.ok) return { error: 'Invalid credentials.' };
 
   await setSessionCookie(result.token, result.expiresAt);
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: result.userId },
+    select: { role: true },
+  });
+  if (user.role === 'HOUSEKEEPER') {
+    redirect('/housekeeper/dashboard');
+  }
   redirect('/admin/dashboard');
 }
