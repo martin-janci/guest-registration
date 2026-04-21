@@ -8,6 +8,7 @@ const schema = z.object({
   MINIO_ACCESS_KEY: z.string().min(1),
   MINIO_SECRET_KEY: z.string().min(1),
   MINIO_BUCKET: z.string().min(1),
+  SERVER_URL: z.string().url().default('http://localhost:3000'),
   SMTP_HOST: z.string().min(1),
   SMTP_PORT: z.string().transform(v => Number.parseInt(v, 10)).pipe(z.number().int().positive()),
   SMTP_USER: z.string().optional(),
