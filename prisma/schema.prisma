@@ -47,6 +47,7 @@ model User {
   housekeeperAssignments PropertyHousekeeper[] @relation("AssignmentHousekeeper")
   trips               Trip[]                @relation("TripAdmin")
   registrationsReviewed Registration[] @relation("RegistrationReviewer")
+  invoices Invoice[] @relation("InvoiceAdmin")
 
   @@index([deletedAt])
 }
@@ -178,6 +179,7 @@ model Registration {
   updatedAt    DateTime           @updatedAt
 
   guests Guest[]
+  invoices Invoice[]
 
   @@index([tripId])
   @@index([status])
@@ -197,4 +199,60 @@ model Guest {
   createdAt        DateTime     @default(now())
 
   @@index([registrationId])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+}
+
+model Invoice {
+  id              Int           @id @default(autoincrement())
+  invoiceNumber   String        @unique
+  adminId         Int
+  admin           User          @relation("InvoiceAdmin", fields: [adminId], references: [id])
+  registrationId  Int?
+  registration    Registration? @relation(fields: [registrationId], references: [id], onDelete: SetNull)
+  clientName      String
+  clientEmail     String?
+  clientVatNumber String?
+  clientAddress   String?
+  issueDate       DateTime      @db.Date
+  dueDate         DateTime?     @db.Date
+  subtotal        Decimal       @default(0) @db.Decimal(10, 2)
+  vatTotal        Decimal       @default(0) @db.Decimal(10, 2)
+  totalAmount     Decimal       @default(0) @db.Decimal(10, 2)
+  currency        String        @default("EUR")
+  notes           String?
+  status          InvoiceStatus @default(DRAFT)
+  sentAt          DateTime?
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  items InvoiceItem[]
+
+  @@index([adminId])
+  @@index([status])
+  @@index([issueDate])
+  @@index([registrationId])
+}
+
+model InvoiceItem {
+  id           Int      @id @default(autoincrement())
+  invoiceId    Int
+  invoice      Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description  String
+  quantity     Decimal  @default(1) @db.Decimal(10, 2)
+  unitPrice    Decimal  @db.Decimal(10, 2)
+  vatRate      Decimal  @default(0) @db.Decimal(5, 2)
+  lineTotal    Decimal  @default(0) @db.Decimal(10, 2)
+  vatAmount    Decimal  @default(0) @db.Decimal(10, 2)
+  totalWithVat Decimal  @default(0) @db.Decimal(10, 2)
+  position     Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([invoiceId])
 }
