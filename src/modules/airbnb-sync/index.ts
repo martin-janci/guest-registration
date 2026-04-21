@@ -1,6 +1,7 @@
 import { parseIcs, extractAirbnbReservation } from '@/modules/ics-parser';
 import * as calendars from '@/modules/calendars/service';
 import * as trips from '@/modules/trips/service';
+import * as housekeeping from '@/modules/housekeeping/service';
 
 export interface SyncResult {
   created: number;
@@ -66,8 +67,16 @@ export async function syncCalendar(
         : `Airbnb · ${reservation.confirmCode}`,
       maxGuests: 8,
     });
-    if (result.created) created++;
-    else updated++;
+    if (result.created) {
+      created++;
+      try {
+        await housekeeping.createTaskForTrip(result.trip.id);
+      } catch (err) {
+        console.error(`Failed to auto-create housekeeping task for trip ${result.trip.id}:`, err);
+      }
+    } else {
+      updated++;
+    }
   }
 
   await calendars.touchLastSynced(cal.id, {
