@@ -299,3 +299,32 @@ model HousekeepingPhoto {
 
   @@index([taskId])
 }
+
+enum JobKind {
+  AIRBNB_SYNC
+  INVOICE_OVERDUE_FLIP
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
+model Job {
+  id        Int       @id @default(autoincrement())
+  kind      JobKind
+  payload   Json      @default("{}")
+  status    JobStatus @default(PENDING)
+  runAfter  DateTime  @default(now())
+  attempts  Int       @default(0)
+  lastError String?
+  lockedAt  DateTime?
+  lockedBy  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status, runAfter])
+  @@index([kind, status])
+}
