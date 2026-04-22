@@ -54,5 +54,52 @@
   "offline": {
     "heading": "You're offline",
     "body": "The app will sync the moment you reconnect. Your previously-loaded tasks stay accessible."
+  },
+  "hk": {
+    "nav": {
+      "dashboard": "Tasks",
+      "calendar": "Calendar",
+      "signOut": "Sign out"
+    },
+    "dashboard": {
+      "heading": "Today",
+      "upcomingHeading": "Next 7 days",
+      "emptyToday": "No cleanings scheduled today.",
+      "emptyUpcoming": "Nothing scheduled."
+    },
+    "calendar": {
+      "heading": "Calendar",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun",
+      "more": "more"
+    },
+    "task": {
+      "backLink": "All tasks",
+      "notesHeading": "Notes from admin",
+      "photosHeading": "Photos ({count})",
+      "paid": "paid",
+      "unpaid": "unpaid",
+      "start": "Start cleaning",
+      "complete": "Mark complete",
+      "completedAt": "Completed {date}.",
+      "paymentReceived": "Payment received.",
+      "awaitingPayment": "Awaiting payment.",
+      "status": {
+        "PENDING": "Pending",
+        "IN_PROGRESS": "In progress",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled"
+      },
+      "photos": {
+        "upload": "Tap to take / choose a photo",
+        "uploading": "Uploading…",
+        "deleteAria": "Delete photo"
+      }
+    }
   }
 }

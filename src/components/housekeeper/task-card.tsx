@@ -2,6 +2,7 @@ import { Link } from '@/lib/i18n/link';
 import { Clock, CheckCircle2, Play, type LucideIcon } from 'lucide-react';
 import { Pill } from '@/components/ui/pill';
 import { formatMoney } from '@/lib/money';
+import { getTranslations } from 'next-intl/server';
 
 export interface TaskCardData {
   id: number;
@@ -25,7 +26,8 @@ function statusIcon(s: TaskCardData['status']): LucideIcon {
   return Clock;
 }
 
-export function TaskCard({ task }: { task: TaskCardData }) {
+export async function TaskCard({ task }: { task: TaskCardData }) {
+  const t = await getTranslations('hk');
   const Icon = statusIcon(task.status);
   return (
     <Link href={`/housekeeper/tasks/${task.id}`}
@@ -37,8 +39,8 @@ export function TaskCard({ task }: { task: TaskCardData }) {
         <div className="text-sm font-semibold text-fg">{task.propertyName}</div>
         <div className="text-xs text-fg-muted">{task.tripTitle} · {task.date}</div>
         <div className="mt-2 flex items-center gap-2">
-          <Pill tone={statusTone(task.status)}>{task.status.toLowerCase().replace('_', ' ')}</Pill>
-          {task.paid ? <Pill tone="success">paid</Pill> : null}
+          <Pill tone={statusTone(task.status)}>{t(`task.status.${task.status}` as any)}</Pill>
+          {task.paid ? <Pill tone="success">{t('task.paid')}</Pill> : null}
           <span className="ml-auto text-xs tabular-nums font-medium text-fg">{formatMoney(task.payAmount, 'EUR')}</span>
         </div>
       </div>

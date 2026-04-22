@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { redirect } from '@/lib/i18n/link';
 import { Link } from '@/lib/i18n/link';
 import { ChevronLeft, Trash2 } from 'lucide-react';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getCurrentSession } from '@/modules/auth/current';
 import { getTaskById } from '@/modules/housekeeping/service';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { UploadPhotoForm } from './photo-form';
 
 export const dynamic = 'force-dynamic';
 
-interface PageProps { params: Promise<{ id: string }> }
+interface PageProps { params: Promise<{ id: string; locale: string }> }
 
 function statusTone(s: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED') {
   if (s === 'COMPLETED') return 'success' as const;
@@ -22,7 +23,10 @@ function statusTone(s: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED') {
 function fmt(d: Date): string { return d.toISOString().slice(0, 10); }
 
 export default async function HousekeeperTaskPage({ params }: PageProps) {
-  const { id: idRaw } = await params;
+  const { id: idRaw, locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('hk.task');
+
   const id = Number.parseInt(idRaw, 10);
   if (!Number.isFinite(id)) notFound();
   const [task, session] = await Promise.all([getTaskById(id), getCurrentSession()]);
@@ -37,28 +41,28 @@ export default async function HousekeeperTaskPage({ params }: PageProps) {
     <div className="flex flex-col gap-5">
       <Link href="/housekeeper/dashboard" className="inline-flex items-center gap-1 text-sm text-accent-600">
         <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-        All tasks
+        {t('backLink')}
       </Link>
 
       <header className="flex flex-col gap-2">
         <h1 className="text-xl font-semibold tracking-tight text-fg">{task.trip.property.name}</h1>
         <p className="text-sm text-fg-muted">{task.trip.title} · {fmt(task.date)}</p>
         <div className="flex flex-wrap items-center gap-2">
-          <Pill tone={statusTone(task.status)}>{task.status.toLowerCase().replace('_', ' ')}</Pill>
-          {task.paid ? <Pill tone="success">paid</Pill> : <Pill tone="neutral">unpaid</Pill>}
+          <Pill tone={statusTone(task.status)}>{t(`status.${task.status}` as any)}</Pill>
+          {task.paid ? <Pill tone="success">{t('paid')}</Pill> : <Pill tone="neutral">{t('unpaid')}</Pill>}
           <span className="ml-auto text-sm tabular-nums font-semibold text-fg">{formatMoney(task.payAmount.toFixed(2), 'EUR')}</span>
         </div>
       </header>
 
       {task.notes && (
         <section className="rounded-lg border border-border bg-surface p-4 text-sm">
-          <p className="font-medium text-fg">Notes from admin</p>
+          <p className="font-medium text-fg">{t('notesHeading')}</p>
           <p className="mt-1 whitespace-pre-wrap text-fg-muted">{task.notes}</p>
         </section>
       )}
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold text-fg">Photos ({task.photos.length})</h2>
+        <h2 className="text-sm font-semibold text-fg">{t('photosHeading', { count: task.photos.length })}</h2>
         {task.photos.length > 0 && (
           <div className="grid grid-cols-3 gap-2">
             {task.photos.map((p) => (
@@ -66,7 +70,7 @@ export default async function HousekeeperTaskPage({ params }: PageProps) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/api/housekeeping/photos/${p.id}`} alt={`Photo ${p.id}`} className="h-full w-full object-cover" />
                 <form action={deletePhotoAction.bind(null, task.id, p.id)} className="absolute top-1 right-1">
-                  <button type="submit" className="rounded-full bg-surface/90 p-1 text-fg-muted shadow-xs hover:text-danger-700">
+                  <button type="submit" aria-label={t('photos.deleteAria')} className="rounded-full bg-surface/90 p-1 text-fg-muted shadow-xs hover:text-danger-700">
                     <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
                   </button>
                 </form>
@@ -80,18 +84,18 @@ export default async function HousekeeperTaskPage({ params }: PageProps) {
       <section className="flex flex-col gap-3">
         {canStart && (
           <form action={startTaskAction.bind(null, task.id)}>
-            <Button type="submit" size="lg" className="w-full">Start cleaning</Button>
+            <Button type="submit" size="lg" className="w-full">{t('start')}</Button>
           </form>
         )}
         {canComplete && (
           <form action={completeTaskAction.bind(null, task.id)}>
-            <Button type="submit" size="lg" className="w-full">Mark complete</Button>
+            <Button type="submit" size="lg" className="w-full">{t('complete')}</Button>
           </form>
         )}
         {task.status === 'COMPLETED' && (
           <p className="rounded-md border border-success-100 bg-success-100 px-3 py-2 text-sm text-success-700">
-            Completed {task.completedAt ? task.completedAt.toISOString().slice(0, 16).replace('T', ' ') : ''}.
-            {task.paid ? ' Payment received.' : ' Awaiting payment.'}
+            {t('completedAt', { date: task.completedAt ? task.completedAt.toISOString().slice(0, 16).replace('T', ' ') : '' })}
+            {task.paid ? ` ${t('paymentReceived')}` : ` ${t('awaitingPayment')}`}
           </p>
         )}
       </section>

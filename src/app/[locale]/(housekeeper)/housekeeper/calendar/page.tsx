@@ -1,3 +1,4 @@
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/lib/i18n/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getCurrentSession } from '@/modules/auth/current';
@@ -6,7 +7,10 @@ import { cn } from '@/lib/cn';
 
 export const dynamic = 'force-dynamic';
 
-interface PageProps { searchParams: Promise<{ m?: string }> }
+interface PageProps {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ m?: string }>;
+}
 
 function parseMonthParam(m: string | undefined): { year: number; month: number } {
   const now = new Date();
@@ -18,7 +22,11 @@ function daysInMonth(year: number, month: number): number { return new Date(Date
 function prevMonth(year: number, month: number): string { const m = month - 1; return m === 0 ? `${year - 1}-12` : `${year}-${String(m).padStart(2, '0')}`; }
 function nextMonth(year: number, month: number): string { const m = month + 1; return m === 13 ? `${year + 1}-01` : `${year}-${String(m).padStart(2, '0')}`; }
 
-export default async function CalendarPage({ searchParams }: PageProps) {
+export default async function CalendarPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('hk.calendar');
+
   const sp = await searchParams;
   const { year, month } = parseMonthParam(sp.m);
   const { user } = await getCurrentSession();
@@ -28,10 +36,10 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   const tasks = await listTasksForHousekeeper(meId, { from, to });
 
   const byDay = new Map<number, typeof tasks>();
-  for (const t of tasks) {
-    const d = t.date.getUTCDate();
+  for (const task of tasks) {
+    const d = task.date.getUTCDate();
     const bucket = byDay.get(d) ?? [];
-    bucket.push(t);
+    bucket.push(task);
     byDay.set(d, bucket);
   }
 
@@ -43,7 +51,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   for (let d = 1; d <= total; d++) cells.push({ day: d, inMonth: true });
   while (cells.length % 7 !== 0) cells.push({ day: null, inMonth: false });
 
-  const monthLabel = firstOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const monthLabel = firstOfMonth.toLocaleDateString(locale, { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
   return (
     <div className="flex flex-col gap-4">
@@ -62,7 +70,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
       </header>
 
       <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-fg-muted">
-        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (<div key={d} className="py-1">{d}</div>))}
+        {[t('mon'), t('tue'), t('wed'), t('thu'), t('fri'), t('sat'), t('sun')].map((d) => (<div key={d} className="py-1">{d}</div>))}
       </div>
 
       <div className="grid grid-cols-7 gap-1">
@@ -74,13 +82,13 @@ export default async function CalendarPage({ searchParams }: PageProps) {
               !c.inMonth && 'bg-surface-2 opacity-40',
             )}>
               {c.day && <span className="font-semibold text-fg">{c.day}</span>}
-              {list.slice(0, 2).map((t) => (
-                <Link key={t.id} href={`/housekeeper/tasks/${t.id}`}
+              {list.slice(0, 2).map((task) => (
+                <Link key={task.id} href={`/housekeeper/tasks/${task.id}`}
                   className="block truncate rounded bg-accent-50 px-1 text-[10px] font-medium text-accent-700">
-                  {t.trip.property.name}
+                  {task.trip.property.name}
                 </Link>
               ))}
-              {list.length > 2 && (<span className="text-[10px] text-fg-muted">+{list.length - 2} more</span>)}
+              {list.length > 2 && (<span className="text-[10px] text-fg-muted">+{list.length - 2} {t('more')}</span>)}
             </div>
           );
         })}
