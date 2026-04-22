@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Wordmark } from '@/components/brand/wordmark';
 import { loginAction } from './actions';
+import { useTranslations } from 'next-intl';
 
 export default function LoginPage() {
+  const t = useTranslations('login');
   const [state, action, pending] = useActionState(loginAction, undefined);
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-4 py-12">
@@ -18,13 +20,13 @@ export default function LoginPage() {
 
         <div className="rounded-lg border border-border bg-surface p-6 shadow-xs">
           <div className="mb-6">
-            <h1 className="text-xl font-semibold text-fg">Sign in</h1>
-            <p className="mt-1 text-sm text-fg-muted">Admin and housekeeper access.</p>
+            <h1 className="text-xl font-semibold text-fg">{t('heading')}</h1>
+            <p className="mt-1 text-sm text-fg-muted">{t('subheading')}</p>
           </div>
 
           <form action={action} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">{t('username')}</Label>
               <Input
                 id="username"
                 name="username"
@@ -35,7 +37,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <Input
                 id="password"
                 name="password"
@@ -52,13 +54,13 @@ export default function LoginPage() {
             )}
 
             <Button type="submit" disabled={pending} className="mt-2">
-              {pending ? 'Signing in…' : 'Sign in'}
+              {pending ? t('submitting') : t('submit')}
             </Button>
           </form>
         </div>
 
         <p className="mt-6 text-center text-xs text-fg-subtle">
-          Guest? Use the link your host sent you.
+          {t('guestHint')}
         </p>
       </div>
     </main>

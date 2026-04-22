@@ -1,1 +1,58 @@
-{}
+{
+  "guest": {
+    "register": {
+      "eyebrow": "Guest registration",
+      "email": {
+        "label": "Your email",
+        "hint": "We'll send the confirmation and any host updates here."
+      },
+      "guestHeading": "Guest {number}",
+      "remove": "Remove",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "ageCategory": "Age category",
+      "ageAdult": "Adult",
+      "ageChild": "Child",
+      "documentType": "Document type",
+      "documentPassport": "Passport",
+      "documentDrivingLicense": "Driving license",
+      "documentCitizenId": "Citizen ID",
+      "documentNumber": "Document number",
+      "documentPhoto": "Document photo",
+      "documentHint": "JPEG/PNG/PDF up to 10 MB. Optional for children if host allows.",
+      "gdprConsent": "I agree this guest's personal data is processed for legal registration purposes.",
+      "addGuest": "Add another guest",
+      "submit": "Submit registration",
+      "submitting": "Submitting…",
+      "footerLink": "Data processing notice"
+    },
+    "success": {
+      "alreadyHeading": "Already registered",
+      "alreadyBody": "This booking already has a registration on file. If that's wrong, contact your host.",
+      "heading": "Registration received",
+      "body": "Your host will review it shortly. We've emailed you a confirmation."
+    },
+    "invalid": {
+      "heading": "Registration link not found",
+      "body": "The code in your link doesn't match any booking. Double-check the link your host sent, or reply to their email for a new one."
+    }
+  },
+  "login": {
+    "heading": "Sign in",
+    "subheading": "Admin and housekeeper access.",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "guestHint": "Guest? Use the link your host sent you."
+  },
+  "gdpr": {
+    "heading": "Data processing notice",
+    "body1": "When you register for a stay at this property, we collect your name, date of birth (via document type / number), and a photo of your identity document to comply with local short-term-rental guest-reporting laws. Your data is kept for the legally required period and then deleted.",
+    "body2": "If you want to see, correct, or delete your data, contact your host directly — they own this data and act as the controller."
+  },
+  "offline": {
+    "heading": "You're offline",
+    "body": "The app will sync the moment you reconnect. Your previously-loaded tasks stay accessible."
+  }
+}
