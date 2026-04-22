@@ -13,3 +13,9 @@ tsconfig.tsbuildinfo
 playwright-report/
 test-results/
 playwright/.cache/
+
+# Serwist PWA build output
+public/sw.js
+public/swe-worker-*.js
+# Ad-hoc scripts
+mk-sess.mjs
