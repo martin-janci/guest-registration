@@ -30,6 +30,7 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
   const admin = await prisma.user.findUniqueOrThrow({ where: { id: inv.adminId } });
   const propertyName = inv.registration?.trip.property.name ?? null;
 
+  // Slovak is the legally-binding language for VAT invoices issued in Slovakia.
   const buf = await renderInvoicePdf({
     invoiceNumber: inv.invoiceNumber,
     issueDate: inv.issueDate.toISOString().slice(0, 10),
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
       customLine2: admin.customLine2,
       customLine3: admin.customLine3,
     },
-  });
+  }, defaultLocale);
 
   const tpl = invoiceSentTemplate({
     clientName: inv.clientName,

@@ -3,10 +3,11 @@ import { requireAdmin } from '@/lib/authz';
 import { getInvoiceById } from '@/modules/invoices/service';
 import { renderInvoicePdf } from '@/modules/invoices/pdf-render';
 import { prisma } from '@/db/client';
+import { isLocale } from '@/lib/i18n/locales';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
-export async function GET(_req: NextRequest, ctx: RouteContext) {
+export async function GET(req: NextRequest, ctx: RouteContext) {
   await requireAdmin();
   const { id: idRaw } = await ctx.params;
   const id = Number.parseInt(idRaw, 10);
@@ -16,6 +17,11 @@ export async function GET(_req: NextRequest, ctx: RouteContext) {
   if (!inv) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const admin = await prisma.user.findUniqueOrThrow({ where: { id: inv.adminId } });
+
+  // Default to 'sk' — Slovak invoices must use Slovak legal VAT terminology.
+  // Pass ?lang=en or ?lang=cs to override for a non-Slovak client copy.
+  const langParam = req.nextUrl.searchParams.get('lang') ?? 'sk';
+  const locale = isLocale(langParam) ? langParam : 'sk';
 
   const buf = await renderInvoicePdf({
     invoiceNumber: inv.invoiceNumber,
@@ -50,7 +56,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext) {
       customLine2: admin.customLine2,
       customLine3: admin.customLine3,
     },
-  });
+  }, locale);
 
   return new NextResponse(new Uint8Array(buf), {
     headers: {

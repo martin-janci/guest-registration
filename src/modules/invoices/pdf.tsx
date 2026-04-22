@@ -1,6 +1,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { formatMoney } from '@/lib/money';
+import type { PdfDict } from '@/lib/i18n/pdf-dict';
 
 const styles = StyleSheet.create({
   page: { padding: 36, fontSize: 10, color: '#1a1a1a', fontFamily: 'Helvetica' },
@@ -61,7 +62,7 @@ export interface InvoicePdfData {
   brand: InvoicePdfBrand;
 }
 
-export function InvoiceDocument({ data }: { data: InvoicePdfData }) {
+export function InvoiceDocument({ data, dict }: { data: InvoicePdfData; dict: PdfDict }) {
   const b = data.brand;
   const customLines = [b.customLine1, b.customLine2, b.customLine3].filter((l): l is string => !!l);
 
@@ -70,9 +71,9 @@ export function InvoiceDocument({ data }: { data: InvoicePdfData }) {
       <Page size="A4" style={styles.page}>
         <View style={styles.row}>
           <View>
-            <Text style={styles.h1}>Invoice {data.invoiceNumber}</Text>
-            <Text style={styles.block}>Issue date: {data.issueDate}</Text>
-            {data.dueDate && <Text style={styles.block}>Due date: {data.dueDate}</Text>}
+            <Text style={styles.h1}>{dict.title} {data.invoiceNumber}</Text>
+            <Text style={styles.block}>{dict.issueDate}: {data.issueDate}</Text>
+            {data.dueDate && <Text style={styles.block}>{dict.dueDate}: {data.dueDate}</Text>}
           </View>
           <View>
             {b.companyName && <Text style={styles.h2}>{b.companyName}</Text>}
@@ -84,7 +85,7 @@ export function InvoiceDocument({ data }: { data: InvoicePdfData }) {
           </View>
         </View>
 
-        <Text style={styles.h2}>Bill to</Text>
+        <Text style={styles.h2}>{dict.client}</Text>
         <Text style={styles.block}>{data.clientName}</Text>
         {data.clientAddress && <Text style={styles.block}>{data.clientAddress}</Text>}
         {data.clientVatNumber && <Text style={styles.block}>VAT: {data.clientVatNumber}</Text>}
@@ -92,11 +93,11 @@ export function InvoiceDocument({ data }: { data: InvoicePdfData }) {
 
         <View style={styles.table}>
           <View style={styles.tr}>
-            <Text style={[styles.th, styles.col_desc]}>Description</Text>
-            <Text style={[styles.th, styles.col_num]}>Qty</Text>
-            <Text style={[styles.th, styles.col_num]}>Unit</Text>
-            <Text style={[styles.th, styles.col_num]}>VAT%</Text>
-            <Text style={[styles.th, styles.col_num]}>Total</Text>
+            <Text style={[styles.th, styles.col_desc]}>{dict.item.description}</Text>
+            <Text style={[styles.th, styles.col_num]}>{dict.item.quantity}</Text>
+            <Text style={[styles.th, styles.col_num]}>{dict.item.unitPrice}</Text>
+            <Text style={[styles.th, styles.col_num]}>{dict.item.vatRate}%</Text>
+            <Text style={[styles.th, styles.col_num]}>{dict.item.lineTotal}</Text>
           </View>
           {data.items.map((it, i) => (
             <View key={i} style={styles.tr}>
@@ -111,22 +112,22 @@ export function InvoiceDocument({ data }: { data: InvoicePdfData }) {
 
         <View style={styles.totals}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal</Text>
+            <Text style={styles.totalLabel}>{dict.totals.subtotal}</Text>
             <Text style={styles.totalValue}>{formatMoney(data.subtotal, data.currency)}</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>VAT</Text>
+            <Text style={styles.totalLabel}>{dict.totals.vat}</Text>
             <Text style={styles.totalValue}>{formatMoney(data.vatTotal, data.currency)}</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text style={[styles.totalLabel, styles.grand]}>Total</Text>
+            <Text style={[styles.totalLabel, styles.grand]}>{dict.totals.total}</Text>
             <Text style={[styles.totalValue, styles.grand]}>{formatMoney(data.totalAmount, data.currency)}</Text>
           </View>
         </View>
 
         {data.notes && (
           <>
-            <Text style={styles.h2}>Notes</Text>
+            <Text style={styles.h2}>{dict.notes}</Text>
             <Text style={styles.block}>{data.notes}</Text>
           </>
         )}
