@@ -178,9 +178,13 @@ export function mapGuest(
   registrationId: number,
 ): Prisma.GuestCreateInput {
   const age: AgeCategory = row.age_category.toUpperCase() as AgeCategory;
-  const doc: DocumentType = row.document_type
-    ? (row.document_type.toUpperCase() as DocumentType)
-    : 'CITIZEN_ID';
+  const mapDocType = (raw: string): DocumentType => {
+    const up = raw.toUpperCase();
+    if (up === 'IDCARD' || up === 'ID_CARD' || up === 'CITIZEN_ID') return 'CITIZEN_ID';
+    if (up === 'DRIVING_LICENSE' || up === 'DRIVING' || up === 'DRIVER') return 'DRIVING_LICENSE';
+    return 'PASSPORT'; // default for 'PASSPORT' and any unknown legacy values
+  };
+  const doc: DocumentType = row.document_type ? mapDocType(row.document_type) : 'CITIZEN_ID';
   return {
     registration: { connect: { id: registrationId } },
     firstName: row.first_name,
@@ -204,15 +208,15 @@ type LegacyInvoice = {
   invoice_number: string;
   client_name: string;
   client_address: string | null;
-  client_email: string | null;
-  client_vat_number: string | null;
+  // Legacy dumps do not carry client_email / client_vat_number columns;
+  // they are omitted from the legacy schema — default to null.
   currency: string;
-  issue_date: Date;
+  // Legacy column is `issued_at` (not `issue_date`).
+  issued_at: Date;
   due_date: Date | null;
   status: string;
   notes: string | null;
-  subtotal: string;
-  vat_total: string;
+  // Legacy dump has only total_amount; subtotal/vat_total are absent.
   total_amount: string;
   created_at: Date;
 };
@@ -227,15 +231,17 @@ export function mapInvoice(
     invoiceNumber: row.invoice_number,
     clientName: row.client_name,
     clientAddress: row.client_address ?? null,
-    clientEmail: row.client_email ?? null,
-    clientVatNumber: row.client_vat_number ?? null,
+    clientEmail: null,
+    clientVatNumber: null,
     currency: row.currency,
-    issueDate: row.issue_date,
+    issueDate: row.issued_at,
     dueDate: row.due_date ?? null,
     status,
     notes: row.notes ?? null,
-    subtotal: row.subtotal,
-    vatTotal: row.vat_total,
+    // Legacy has no separate subtotal/vatTotal — set both to 0 and carry the
+    // total as-is; the verify pass checks sum(items) ≈ totalAmount instead.
+    subtotal: '0',
+    vatTotal: '0',
     totalAmount: row.total_amount,
     createdAt: row.created_at,
   };

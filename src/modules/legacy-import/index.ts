@@ -14,7 +14,7 @@ import {
   mapHousekeeping,
 } from './transform.js';
 import { uploadFromTarball } from './upload.js';
-// TODO(T4): import { verify } from './verify.js';
+import { verify } from './verify.js';
 
 export interface ImportOptions {
   dumpPath: string;
@@ -234,8 +234,7 @@ export async function run(opts: ImportOptions): Promise<ImportResult> {
       }
     }
 
-    // TODO(T4): const discrepancies = await verify();
-    const discrepancies: string[] = [];
+    const discrepancies = await verify();
 
     return {
       counts: {

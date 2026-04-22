@@ -16,6 +16,7 @@ export async function uploadFromTarball(
 ): Promise<Map<string, string>> {
   await ensureBucket();
   const result = new Map<string, string>();
+  const uploadPromises: Promise<void>[] = [];
 
   await new Promise<void>((resolve, reject) => {
     const parser = extract({ cwd: '/tmp' });
@@ -32,14 +33,14 @@ export async function uploadFromTarball(
       entry.on('data', (c: Buffer) => chunks.push(c));
       entry.on('end', () => {
         const buf = Buffer.concat(chunks);
-        minio
+        const upload = minio
           .putObject(env.MINIO_BUCKET, key, buf, buf.byteLength, {
             'Content-Type': 'image/jpeg',
           })
           .then(() => {
             result.set(legacyName, key);
-          })
-          .catch(reject);
+          });
+        uploadPromises.push(upload);
       });
       entry.on('error', reject);
     });
@@ -48,6 +49,9 @@ export async function uploadFromTarball(
     parser.on('error', reject);
     createReadStream(tarPath).pipe(parser);
   });
+
+  // Wait for all in-flight putObject calls that were kicked off during parsing.
+  await Promise.all(uploadPromises);
 
   return result;
 }
