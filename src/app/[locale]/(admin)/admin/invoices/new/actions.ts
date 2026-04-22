@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { createInvoice } from '@/modules/invoices/service';
 import { createInvoiceSchema } from '@/modules/invoices/schema';
@@ -35,5 +35,5 @@ export async function createInvoiceAction(
 
   const invoice = await createInvoice(admin.id, parsed.data);
   revalidatePath('/admin/invoices');
-  redirect(`/admin/invoices/${invoice.id}`);
+  return await redirect(`/admin/invoices/${invoice.id}`);
 }

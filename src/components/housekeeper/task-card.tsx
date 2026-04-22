@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/lib/i18n/link';
 import { Clock, CheckCircle2, Play, type LucideIcon } from 'lucide-react';
 import { Pill } from '@/components/ui/pill';
 import { formatMoney } from '@/lib/money';

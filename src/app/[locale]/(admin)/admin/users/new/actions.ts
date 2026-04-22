@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { Prisma } from '@prisma/client';
 import { requireAdmin } from '@/lib/authz';
 import { createUser } from '@/modules/users/service';
@@ -41,5 +41,5 @@ export async function createUserAction(
   }
 
   revalidatePath('/admin/users');
-  redirect('/admin/users');
+  return await redirect('/admin/users');
 }

@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { createTrip } from '@/modules/trips/service';
 import { createTripSchema } from '@/modules/trips/schema';
@@ -31,5 +31,5 @@ export async function createTripAction(
   }
   const trip = await createTrip(admin.id, parsed.data);
   revalidatePath('/admin/trips');
-  redirect(`/admin/trips/${trip.id}`);
+  return await redirect(`/admin/trips/${trip.id}`);
 }

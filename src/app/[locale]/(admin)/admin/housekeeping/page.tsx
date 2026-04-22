@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/lib/i18n/link';
 import { Plus, Sparkles } from 'lucide-react';
 import { requireAdmin } from '@/lib/authz';
 import { listTasksForAdmin } from '@/modules/housekeeping/service';

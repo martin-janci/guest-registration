@@ -1,5 +1,6 @@
-import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
+import { Link } from '@/lib/i18n/link';
 import { ChevronLeft, Trash2 } from 'lucide-react';
 import { getCurrentSession } from '@/modules/auth/current';
 import { getTaskById } from '@/modules/housekeeping/service';
@@ -27,7 +28,7 @@ export default async function HousekeeperTaskPage({ params }: PageProps) {
   const [task, session] = await Promise.all([getTaskById(id), getCurrentSession()]);
   if (!task) notFound();
   const user = session.user!;
-  if (user.role === 'HOUSEKEEPER' && task.housekeeperId !== user.id) redirect('/housekeeper/dashboard');
+  if (user.role === 'HOUSEKEEPER' && task.housekeeperId !== user.id) return await redirect('/housekeeper/dashboard');
 
   const canStart = task.status === 'PENDING';
   const canComplete = task.status === 'IN_PROGRESS';

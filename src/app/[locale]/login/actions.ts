@@ -1,6 +1,6 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { z } from 'zod';
 import { login } from '@/modules/auth/login';
 import { setSessionCookie } from '@/modules/auth/session';
@@ -30,7 +30,7 @@ export async function loginAction(
     select: { role: true },
   });
   if (user.role === 'HOUSEKEEPER') {
-    redirect('/housekeeper/dashboard');
+    return await redirect('/housekeeper/dashboard');
   }
-  redirect('/admin/dashboard');
+  return await redirect('/admin/dashboard');
 }

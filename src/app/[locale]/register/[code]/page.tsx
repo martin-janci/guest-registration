@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { Link } from '@/lib/i18n/link';
+import { redirect } from '@/lib/i18n/link';
 import { getTripByConfirmCode, countSubmissionsForTrip } from '@/modules/registrations/service';
 import { RegisterForm } from './form';
 
@@ -12,10 +12,10 @@ interface PageProps {
 export default async function RegisterPage({ params }: PageProps) {
   const { code } = await params;
   const trip = await getTripByConfirmCode(code);
-  if (!trip) redirect(`/register/${code}/invalid`);
+  if (!trip) return await redirect(`/register/${code}/invalid`);
 
   const existing = await countSubmissionsForTrip(trip.id);
-  if (existing > 0) redirect(`/register/${code}/success?existing=1`);
+  if (existing > 0) return await redirect(`/register/${code}/success?existing=1`);
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-6 px-4 py-8">

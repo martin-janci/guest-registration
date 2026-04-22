@@ -1,10 +1,10 @@
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { getCurrentSession } from '@/modules/auth/current';
 import { Sidebar } from '@/components/admin/sidebar';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = await getCurrentSession();
-  if (!user) redirect('/login');
+  if (!user) return await redirect('/login');
 
   return (
     <div className="flex min-h-screen bg-bg">

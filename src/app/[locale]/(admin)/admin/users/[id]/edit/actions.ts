@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { Prisma } from '@prisma/client';
 import { requireAdmin } from '@/lib/authz';
 import { updateUser, resetUserPassword } from '@/modules/users/service';
@@ -42,7 +42,7 @@ export async function updateUserAction(
 
   revalidatePath('/admin/users');
   revalidatePath(`/admin/users/${id}/edit`);
-  redirect('/admin/users');
+  return await redirect('/admin/users');
 }
 
 export type ResetPasswordState = { error?: string; newPassword?: string };

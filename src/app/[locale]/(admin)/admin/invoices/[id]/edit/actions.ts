@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { updateInvoiceHeader } from '@/modules/invoices/service';
 import { updateInvoiceHeaderSchema } from '@/modules/invoices/schema';
@@ -35,5 +35,5 @@ export async function updateInvoiceHeaderAction(
   await updateInvoiceHeader(id, parsed.data);
   revalidatePath('/admin/invoices');
   revalidatePath(`/admin/invoices/${id}`);
-  redirect(`/admin/invoices/${id}`);
+  return await redirect(`/admin/invoices/${id}`);
 }

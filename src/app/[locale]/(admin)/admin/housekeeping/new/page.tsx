@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { listTrips } from '@/modules/trips/service';
 import { listUsers } from '@/modules/users/service';

@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { updateProperty } from '@/modules/properties/service';
 import { updatePropertySchema } from '@/modules/properties/schema';
@@ -31,5 +31,5 @@ export async function updatePropertyAction(
   await updateProperty(id, parsed.data);
   revalidatePath('/admin/properties');
   revalidatePath(`/admin/properties/${id}`);
-  redirect(`/admin/properties/${id}`);
+  return await redirect(`/admin/properties/${id}`);
 }

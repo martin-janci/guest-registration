@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link } from '@/lib/i18n/link';
+import { usePathname } from '@/lib/i18n/link';
 import {
   LayoutDashboard,
   Plane,

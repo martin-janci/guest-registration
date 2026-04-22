@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/lib/i18n/link';
 import { Home, Plus } from 'lucide-react';
 import { requireAdmin } from '@/lib/authz';
 import { listProperties } from '@/modules/properties/service';

@@ -1,6 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { createTask } from '@/modules/housekeeping/service';
 import { createTaskSchema } from '@/modules/housekeeping/schema';
@@ -26,5 +26,5 @@ export async function createTaskAction(_prev: State | undefined, formData: FormD
   }
   const task = await createTask(parsed.data);
   revalidatePath('/admin/housekeeping');
-  redirect(`/admin/housekeeping/${task.id}`);
+  return await redirect(`/admin/housekeeping/${task.id}`);
 }

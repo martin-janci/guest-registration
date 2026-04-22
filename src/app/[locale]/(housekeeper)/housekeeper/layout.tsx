@@ -1,10 +1,10 @@
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { requireHousekeeperOrAdmin } from '@/lib/authz';
 import { HousekeeperBottomNav } from '@/components/housekeeper/bottom-nav';
 import { Wordmark } from '@/components/brand/wordmark';
 
 export default async function HousekeeperLayout({ children }: { children: React.ReactNode }) {
-  try { await requireHousekeeperOrAdmin(); } catch { redirect('/login'); }
+  try { await requireHousekeeperOrAdmin(); } catch { await redirect('/login'); }
   return (
     <div className="flex min-h-screen flex-col bg-bg">
       <header className="sticky top-0 z-10 flex h-14 items-center border-b border-border bg-surface/95 px-4 backdrop-blur-md">

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { getPropertyById } from '@/modules/properties/service';
 import { listAssignments } from '@/modules/property-housekeepers/service';

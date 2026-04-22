@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { getTaskById } from '@/modules/housekeeping/service';
 import { listUsers } from '@/modules/users/service';

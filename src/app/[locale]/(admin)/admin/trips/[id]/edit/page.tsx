@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { Link } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { getTripById } from '@/modules/trips/service';
 import { EditTripForm } from './form';

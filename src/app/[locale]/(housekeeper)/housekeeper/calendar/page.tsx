@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/lib/i18n/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getCurrentSession } from '@/modules/auth/current';
 import { listTasksForHousekeeper } from '@/modules/housekeeping/service';

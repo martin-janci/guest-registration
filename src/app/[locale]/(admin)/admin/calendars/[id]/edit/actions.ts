@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { updateCalendar } from '@/modules/calendars/service';
 import { updateCalendarSchema } from '@/modules/calendars/schema';
@@ -29,5 +29,5 @@ export async function updateCalendarAction(
   }
   await updateCalendar(id, parsed.data);
   revalidatePath('/admin/calendars');
-  redirect('/admin/calendars');
+  return await redirect('/admin/calendars');
 }

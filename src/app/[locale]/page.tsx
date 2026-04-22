@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 
-export default function Page() {
-  redirect('/login');
+export default async function Page() {
+  await redirect('/login');
 }

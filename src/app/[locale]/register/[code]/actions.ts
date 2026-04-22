@@ -1,6 +1,6 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import { redirect } from '@/lib/i18n/link';
 import { revalidatePath } from 'next/cache';
 import crypto from 'node:crypto';
 import { env } from '@/lib/env';
@@ -158,5 +158,5 @@ export async function submitAction(
   }
 
   revalidatePath('/admin/registrations');
-  redirect(`/register/${confirmCode}/success`);
+  return await redirect(`/register/${confirmCode}/success`);
 }
