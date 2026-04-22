@@ -10,3 +10,6 @@ coverage
 .vscode
 !.vscode/settings.json
 tsconfig.tsbuildinfo
+playwright-report/
+test-results/
+playwright/.cache/
