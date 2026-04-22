@@ -19,18 +19,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Prisma client needs a DATABASE_URL at generate time if the schema is read there;
 # our client generation does not require an actual connection.
 RUN npx prisma generate
-# Dummy env vars satisfy the Zod env schema during Next.js static analysis / page-data collection.
-RUN DATABASE_URL="postgres://build:build@localhost:5432/build" \
-    SESSION_COOKIE_SECURE="false" \
-    MINIO_ENDPOINT="http://localhost:9000" \
-    MINIO_ACCESS_KEY="build" \
-    MINIO_SECRET_KEY="build-secret" \
-    MINIO_BUCKET="build" \
-    SMTP_HOST="localhost" \
-    SMTP_PORT="25" \
-    SMTP_FROM="noreply@example.com" \
-    CRON_SECRET="build-secret-12345" \
-    npm run build
+# env.ts uses a lazy Proxy — no build-time env vars needed.
+RUN npm run build
 
 # ---- runner ----
 FROM node:22-bookworm-slim AS runner
