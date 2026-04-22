@@ -32,5 +32,5 @@ export async function createPropertyAction(
 
   const p = await createProperty(parsed.data);
   revalidatePath('/admin/properties');
-  return await redirect(`/admin/properties/${p.id}`);
+  return redirect(`/admin/properties/${p.id}`);
 }

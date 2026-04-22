@@ -32,7 +32,7 @@ export default async function HousekeeperTaskPage({ params }: PageProps) {
   const [task, session] = await Promise.all([getTaskById(id), getCurrentSession()]);
   if (!task) notFound();
   const user = session.user!;
-  if (user.role === 'HOUSEKEEPER' && task.housekeeperId !== user.id) return await redirect('/housekeeper/dashboard');
+  if (user.role === 'HOUSEKEEPER' && task.housekeeperId !== user.id) return redirect('/housekeeper/dashboard');
 
   const canStart = task.status === 'PENDING';
   const canComplete = task.status === 'IN_PROGRESS';

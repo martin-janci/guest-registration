@@ -17,10 +17,10 @@ export default async function RegisterPage({ params }: PageProps) {
   const t = await getTranslations('guest.register');
 
   const trip = await getTripByConfirmCode(code);
-  if (!trip) return await redirect(`/register/${code}/invalid`);
+  if (!trip) return redirect(`/register/${code}/invalid`);
 
   const existing = await countSubmissionsForTrip(trip.id);
-  if (existing > 0) return await redirect(`/register/${code}/success?existing=1`);
+  if (existing > 0) return redirect(`/register/${code}/success?existing=1`);
 
   return (
     <main className="relative mx-auto flex min-h-screen max-w-xl flex-col gap-6 px-4 py-8">

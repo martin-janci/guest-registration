@@ -35,5 +35,5 @@ export async function createInvoiceAction(
 
   const invoice = await createInvoice(admin.id, parsed.data);
   revalidatePath('/admin/invoices');
-  return await redirect(`/admin/invoices/${invoice.id}`);
+  return redirect(`/admin/invoices/${invoice.id}`);
 }

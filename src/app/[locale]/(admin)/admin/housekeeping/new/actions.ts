@@ -26,5 +26,5 @@ export async function createTaskAction(_prev: State | undefined, formData: FormD
   }
   const task = await createTask(parsed.data);
   revalidatePath('/admin/housekeeping');
-  return await redirect(`/admin/housekeeping/${task.id}`);
+  return redirect(`/admin/housekeeping/${task.id}`);
 }

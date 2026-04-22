@@ -30,7 +30,7 @@ export async function loginAction(
     select: { role: true },
   });
   if (user.role === 'HOUSEKEEPER') {
-    return await redirect('/housekeeper/dashboard');
+    return redirect('/housekeeper/dashboard');
   }
-  return await redirect('/admin/dashboard');
+  return redirect('/admin/dashboard');
 }

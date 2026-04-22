@@ -31,5 +31,5 @@ export async function createTripAction(
   }
   const trip = await createTrip(admin.id, parsed.data);
   revalidatePath('/admin/trips');
-  return await redirect(`/admin/trips/${trip.id}`);
+  return redirect(`/admin/trips/${trip.id}`);
 }

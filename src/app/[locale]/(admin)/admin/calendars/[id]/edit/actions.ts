@@ -29,5 +29,5 @@ export async function updateCalendarAction(
   }
   await updateCalendar(id, parsed.data);
   revalidatePath('/admin/calendars');
-  return await redirect('/admin/calendars');
+  return redirect('/admin/calendars');
 }

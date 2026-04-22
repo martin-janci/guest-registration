@@ -42,7 +42,7 @@ export async function updateUserAction(
 
   revalidatePath('/admin/users');
   revalidatePath(`/admin/users/${id}/edit`);
-  return await redirect('/admin/users');
+  return redirect('/admin/users');
 }
 
 export type ResetPasswordState = { error?: string; newPassword?: string };

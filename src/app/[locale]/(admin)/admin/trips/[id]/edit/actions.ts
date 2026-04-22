@@ -32,5 +32,5 @@ export async function updateTripAction(
   await updateTrip(id, parsed.data);
   revalidatePath('/admin/trips');
   revalidatePath(`/admin/trips/${id}`);
-  return await redirect(`/admin/trips/${id}`);
+  return redirect(`/admin/trips/${id}`);
 }

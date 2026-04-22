@@ -31,5 +31,5 @@ export async function updatePropertyAction(
   await updateProperty(id, parsed.data);
   revalidatePath('/admin/properties');
   revalidatePath(`/admin/properties/${id}`);
-  return await redirect(`/admin/properties/${id}`);
+  return redirect(`/admin/properties/${id}`);
 }

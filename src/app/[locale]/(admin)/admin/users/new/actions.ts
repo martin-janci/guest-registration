@@ -41,5 +41,5 @@ export async function createUserAction(
   }
 
   revalidatePath('/admin/users');
-  return await redirect('/admin/users');
+  return redirect('/admin/users');
 }

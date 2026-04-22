@@ -164,5 +164,5 @@ export async function submitAction(
   }
 
   revalidatePath('/admin/registrations');
-  return await redirect(`/register/${confirmCode}/success`);
+  return redirect(`/register/${confirmCode}/success`);
 }

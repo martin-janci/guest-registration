@@ -35,5 +35,5 @@ export async function updateInvoiceHeaderAction(
   await updateInvoiceHeader(id, parsed.data);
   revalidatePath('/admin/invoices');
   revalidatePath(`/admin/invoices/${id}`);
-  return await redirect(`/admin/invoices/${id}`);
+  return redirect(`/admin/invoices/${id}`);
 }
