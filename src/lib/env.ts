@@ -15,6 +15,7 @@ const schema = z.object({
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().email(),
   LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
+  CRON_SECRET: z.string().min(8),
 });
 
 export type Env = z.infer<typeof schema>;

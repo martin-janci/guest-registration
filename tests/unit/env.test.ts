@@ -15,6 +15,7 @@ describe('loadEnv', () => {
       SMTP_PORT: '587',
       SMTP_FROM: 'noreply@example.com',
       LOG_LEVEL: 'info',
+      CRON_SECRET: 'dev-secret-12345',
     });
     expect(env.DATABASE_URL).toBe('postgresql://u:p@h:5432/db');
     expect(env.SESSION_COOKIE_SECURE).toBe(false);
