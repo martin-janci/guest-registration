@@ -2,6 +2,7 @@ node_modules
 .next
 .env
 .env.*
+.env*
 tests
 docs
 *.log
@@ -9,3 +10,11 @@ docs
 .github
 .vscode
 README.md
+dist
+.idea
+.DS_Store
+coverage
+e2e
+test-results
+playwright-report
+!/.env.example
