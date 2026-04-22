@@ -1,17 +1,7 @@
-import type { Metadata } from 'next';
-import './globals.css';
-
-export const metadata: Metadata = {
-  title: 'Guest Registration',
-  description: 'Airbnb guest registration for hosts',
-};
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body className="min-h-full bg-bg text-fg antialiased">
-        {children}
-      </body>
-    </html>
-  );
+  // The real layout (<html>, providers, fonts) lives in [locale]/layout.tsx
+  // so that <html lang="…"> reflects the request locale.
+  return children;
 }
+
+export const metadata = { title: 'Guest Registration' };
