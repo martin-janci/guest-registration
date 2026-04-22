@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField } from '@/components/ui/form-field';
 import { updatePropertyAction } from './actions';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   id: number;
@@ -14,6 +15,9 @@ interface Props {
 }
 
 export function EditPropertyForm({ id, initial }: Props) {
+  const t = useTranslations('admin.properties.form');
+  const tRestore = useTranslations('admin.properties.restore');
+  const tDelete = useTranslations('admin.properties.delete');
   const [state, action, pending] = useActionState(
     updatePropertyAction.bind(null, id),
     undefined,
@@ -28,41 +32,41 @@ export function EditPropertyForm({ id, initial }: Props) {
             {state.error}
           </p>
         )}
-        <FormField id="name" label="Name" required error={fe.name}>
+        <FormField id="name" label={t('fieldName')} required error={fe.name}>
           <Input id="name" name="name" defaultValue={initial.name} required />
         </FormField>
-        <FormField id="maxGuests" label="Max guests" error={fe.maxGuests}>
+        <FormField id="maxGuests" label={t('fieldMaxGuests')} error={fe.maxGuests}>
           <Input id="maxGuests" name="maxGuests" type="number" min={1} max={100} defaultValue={initial.maxGuests ?? ''} />
         </FormField>
-        <FormField id="notes" label="Internal notes" error={fe.notes}>
+        <FormField id="notes" label={t('fieldNotes')} error={fe.notes}>
           <Textarea id="notes" name="notes" rows={3} defaultValue={initial.notes ?? ''} />
         </FormField>
         <div className="flex justify-end gap-3">
-          <Link href={`/admin/properties/${id}`}><Button variant="ghost" type="button">Cancel</Button></Link>
-          <Button type="submit" disabled={pending}>{pending ? 'Saving…' : 'Save changes'}</Button>
+          <Link href={`/admin/properties/${id}`}><Button variant="ghost" type="button">{t('cancelButton')}</Button></Link>
+          <Button type="submit" disabled={pending}>{pending ? t('saving') : t('saveButton')}</Button>
         </div>
       </form>
 
       {initial.deleted ? (
         <section className="rounded-lg border border-border bg-surface p-6 shadow-xs">
-          <h2 className="text-sm font-semibold text-fg">Restore property</h2>
+          <h2 className="text-sm font-semibold text-fg">{tRestore('heading')}</h2>
           <form action={`/admin/properties/${id}/restore`} method="post" className="mt-5 flex justify-end">
-            <Button type="submit" variant="secondary">Restore</Button>
+            <Button type="submit" variant="secondary">{tRestore('button')}</Button>
           </form>
         </section>
       ) : (
         <section className="rounded-lg border border-danger-100 bg-danger-100 p-6">
-          <h2 className="text-sm font-semibold text-danger-700">Delete property</h2>
+          <h2 className="text-sm font-semibold text-danger-700">{tDelete('heading')}</h2>
           <p className="mt-1 text-xs text-danger-700/80">
-            Soft-delete. All trips, registrations, and housekeeping tasks that reference it are preserved.
+            {tDelete('body')}
           </p>
           <form
             action={`/admin/properties/${id}/delete`}
             method="post"
             className="mt-5 flex justify-end"
-            onSubmit={(e) => { if (!confirm('Soft-delete this property?')) e.preventDefault(); }}
+            onSubmit={(e) => { if (!confirm(tDelete('confirm'))) e.preventDefault(); }}
           >
-            <Button type="submit" variant="danger">Delete</Button>
+            <Button type="submit" variant="danger">{tDelete('button')}</Button>
           </form>
         </section>
       )}

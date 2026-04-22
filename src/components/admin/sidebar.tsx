@@ -17,44 +17,46 @@ import {
 } from 'lucide-react';
 import { Wordmark } from '@/components/brand/wordmark';
 import { cn } from '@/lib/cn';
+import { useTranslations } from 'next-intl';
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
   badge?: number;
 }
 
 interface NavGroup {
-  label: string;
+  labelKey: string;
   items: NavItem[];
 }
 
 const groups: NavGroup[] = [
   {
-    label: 'Main',
+    labelKey: 'main',
     items: [
-      { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/admin/trips', label: 'Trips', icon: Plane },
-      { href: '/admin/registrations', label: 'Registrations', icon: ClipboardCheck },
-      { href: '/admin/invoices', label: 'Invoices', icon: Receipt },
-      { href: '/admin/housekeeping', label: 'Housekeeping', icon: Sparkles },
+      { href: '/admin/dashboard', labelKey: 'dashboard', icon: LayoutDashboard },
+      { href: '/admin/trips', labelKey: 'trips', icon: Plane },
+      { href: '/admin/registrations', labelKey: 'registrations', icon: ClipboardCheck },
+      { href: '/admin/invoices', labelKey: 'invoices', icon: Receipt },
+      { href: '/admin/housekeeping', labelKey: 'housekeeping', icon: Sparkles },
     ],
   },
   {
-    label: 'Manage',
+    labelKey: 'manage',
     items: [
-      { href: '/admin/properties', label: 'Properties', icon: Home },
-      { href: '/admin/calendars', label: 'Calendars', icon: Calendar },
-      { href: '/admin/users', label: 'Users', icon: Users },
-      { href: '/admin/settings', label: 'Settings', icon: Settings },
-      { href: '/admin/jobs', label: 'Jobs', icon: CircleDot },
+      { href: '/admin/properties', labelKey: 'properties', icon: Home },
+      { href: '/admin/calendars', labelKey: 'calendars', icon: Calendar },
+      { href: '/admin/users', labelKey: 'users', icon: Users },
+      { href: '/admin/settings', labelKey: 'settings', icon: Settings },
+      { href: '/admin/jobs', labelKey: 'jobs', icon: CircleDot },
     ],
   },
 ];
 
 export function Sidebar({ user }: { user: { username: string; email: string; role: string } }) {
   const pathname = usePathname();
+  const t = useTranslations('admin.nav');
   const initials = user.username.slice(0, 2).toUpperCase();
 
   return (
@@ -64,9 +66,9 @@ export function Sidebar({ user }: { user: { username: string; email: string; rol
       </div>
 
       {groups.map((group) => (
-        <div key={group.label} className="flex flex-col gap-0.5">
+        <div key={group.labelKey} className="flex flex-col gap-0.5">
           <div className="px-2.5 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-subtle">
-            {group.label}
+            {t(group.labelKey as Parameters<typeof t>[0])}
           </div>
           {group.items.map((item) => {
             const isActive =
@@ -84,7 +86,7 @@ export function Sidebar({ user }: { user: { username: string; email: string; rol
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
-                <span className="truncate">{item.label}</span>
+                <span className="truncate">{t(item.labelKey as Parameters<typeof t>[0])}</span>
                 {item.badge ? (
                   <span className="ml-auto rounded-full bg-warning-100 px-1.5 text-[11px] font-medium text-warning-700">
                     {item.badge}
@@ -109,7 +111,7 @@ export function Sidebar({ user }: { user: { username: string; email: string; rol
         <form action="/admin/logout" method="post">
           <button
             type="submit"
-            title="Sign out"
+            title={t('signOut')}
             className="rounded-md p-1 text-fg-subtle hover:bg-surface-2 hover:text-fg"
           >
             <svg
@@ -127,7 +129,7 @@ export function Sidebar({ user }: { user: { username: string; email: string; rol
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" x2="9" y1="12" y2="12" />
             </svg>
-            <span className="sr-only">Sign out</span>
+            <span className="sr-only">{t('signOut')}</span>
           </button>
         </form>
       </div>

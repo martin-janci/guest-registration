@@ -7,20 +7,23 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { FormField } from '@/components/ui/form-field';
 import { createUserAction, type CreateUserState } from './actions';
+import { useTranslations } from 'next-intl';
 
 export default function NewUserPage() {
   const [state, action, pending] = useActionState<CreateUserState | undefined, FormData>(
     createUserAction,
     undefined,
   );
+  const t = useTranslations('admin.users.form');
+  const tRole = useTranslations('admin.users.role');
   const fe = state?.fieldErrors ?? {};
 
   return (
     <div className="mx-auto max-w-lg">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-fg">New user</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-fg">{t('newHeading')}</h1>
         <p className="mt-1 text-sm text-fg-muted">
-          The new user will be able to sign in immediately using the password you set.
+          {t('newSubheading')}
         </p>
       </header>
 
@@ -31,32 +34,32 @@ export default function NewUserPage() {
           </p>
         )}
 
-        <FormField id="username" label="Username" required error={fe.username}>
+        <FormField id="username" label={t('fieldUsername')} required error={fe.username}>
           <Input id="username" name="username" autoComplete="off" required />
         </FormField>
 
-        <FormField id="email" label="Email" required error={fe.email}>
+        <FormField id="email" label={t('fieldEmail')} required error={fe.email}>
           <Input id="email" name="email" type="email" autoComplete="off" required />
         </FormField>
 
-        <FormField id="password" label="Password" description="Minimum 8 characters." required error={fe.password}>
+        <FormField id="password" label={t('fieldPassword')} description={t('fieldPasswordHint')} required error={fe.password}>
           <Input id="password" name="password" type="text" autoComplete="new-password" required />
         </FormField>
 
-        <FormField id="role" label="Role" required error={fe.role}>
+        <FormField id="role" label={t('fieldRole')} required error={fe.role}>
           <Select id="role" name="role" defaultValue="ADMIN">
-            <option value="ADMIN">Admin</option>
-            <option value="SUPERADMIN">Superadmin</option>
-            <option value="HOUSEKEEPER">Housekeeper</option>
+            <option value="ADMIN">{tRole('ADMIN')}</option>
+            <option value="SUPERADMIN">{tRole('SUPERADMIN')}</option>
+            <option value="HOUSEKEEPER">{tRole('HOUSEKEEPER')}</option>
           </Select>
         </FormField>
 
         <div className="mt-2 flex items-center justify-end gap-3">
           <Link href="/admin/users">
-            <Button variant="ghost" type="button">Cancel</Button>
+            <Button variant="ghost" type="button">{t('cancelButton')}</Button>
           </Link>
           <Button type="submit" disabled={pending}>
-            {pending ? 'Creating…' : 'Create user'}
+            {pending ? t('creating') : t('createButton')}
           </Button>
         </div>
       </form>

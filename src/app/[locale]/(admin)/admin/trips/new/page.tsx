@@ -2,10 +2,19 @@ import { Link } from '@/lib/i18n/link';
 import { requireAdmin } from '@/lib/authz';
 import { listProperties } from '@/modules/properties/service';
 import { NewTripForm } from './form';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewTripPage() {
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function NewTripPage({ params }: PageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('admin.trips.form');
+  const tCommon = await getTranslations('admin.common');
   await requireAdmin();
   const props = await listProperties();
 
@@ -13,10 +22,10 @@ export default async function NewTripPage() {
     <div className="mx-auto max-w-xl">
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-fg">New trip</h1>
-          <p className="mt-1 text-sm text-fg-muted">A manual reservation (not imported from Airbnb).</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-fg">{t('newHeading')}</h1>
+          <p className="mt-1 text-sm text-fg-muted">{t('newSubheading')}</p>
         </div>
-        <Link href="/admin/trips" className="text-sm text-accent-600 hover:text-accent-700">Back</Link>
+        <Link href="/admin/trips" className="text-sm text-accent-600 hover:text-accent-700">{tCommon('back')}</Link>
       </header>
 
       <NewTripForm properties={props.map((p) => ({ id: p.id, name: p.name, maxGuests: p.maxGuests }))} />

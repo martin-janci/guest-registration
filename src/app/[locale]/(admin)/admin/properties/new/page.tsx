@@ -7,17 +7,19 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField } from '@/components/ui/form-field';
 import { createPropertyAction } from './actions';
+import { useTranslations } from 'next-intl';
 
 export default function NewPropertyPage() {
   const [state, action, pending] = useActionState(createPropertyAction, undefined);
+  const t = useTranslations('admin.properties.form');
   const fe = state?.fieldErrors ?? {};
 
   return (
     <div className="mx-auto max-w-lg">
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-fg">New property</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-fg">{t('newHeading')}</h1>
         <p className="mt-1 text-sm text-fg-muted">
-          Add an apartment or cottage you want to manage.
+          {t('newSubheading')}
         </p>
       </header>
 
@@ -28,21 +30,21 @@ export default function NewPropertyPage() {
           </p>
         )}
 
-        <FormField id="name" label="Name" required error={fe.name}>
+        <FormField id="name" label={t('fieldName')} required error={fe.name}>
           <Input id="name" name="name" autoComplete="off" required />
         </FormField>
 
-        <FormField id="maxGuests" label="Max guests" description="Capacity limit on registrations." error={fe.maxGuests}>
+        <FormField id="maxGuests" label={t('fieldMaxGuests')} description={t('fieldMaxGuestsHint')} error={fe.maxGuests}>
           <Input id="maxGuests" name="maxGuests" type="number" min={1} max={100} />
         </FormField>
 
-        <FormField id="notes" label="Internal notes" description="Only visible to admins. Nothing here appears to guests." error={fe.notes}>
+        <FormField id="notes" label={t('fieldNotes')} description={t('fieldNotesHint')} error={fe.notes}>
           <Textarea id="notes" name="notes" rows={3} />
         </FormField>
 
         <div className="mt-2 flex items-center justify-end gap-3">
-          <Link href="/admin/properties"><Button variant="ghost" type="button">Cancel</Button></Link>
-          <Button type="submit" disabled={pending}>{pending ? 'Creating…' : 'Create property'}</Button>
+          <Link href="/admin/properties"><Button variant="ghost" type="button">{t('cancelButton')}</Button></Link>
+          <Button type="submit" disabled={pending}>{pending ? t('creating') : t('createButton')}</Button>
         </div>
       </form>
     </div>

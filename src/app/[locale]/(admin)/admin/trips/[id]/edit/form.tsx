@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField } from '@/components/ui/form-field';
 import { updateTripAction } from './actions';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   id: number;
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export function EditTripForm({ id, initial }: Props) {
+  const t = useTranslations('admin.trips.form');
+  const tDelete = useTranslations('admin.trips.delete');
   const [state, action, pending] = useActionState(
     updateTripAction.bind(null, id),
     undefined,
@@ -23,41 +26,41 @@ export function EditTripForm({ id, initial }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <form action={action} className="flex flex-col gap-5 rounded-lg border border-border bg-surface p-6 shadow-xs">
-        <FormField id="title" label="Title" required error={fe.title}>
+        <FormField id="title" label={t('fieldTitle')} required error={fe.title}>
           <Input id="title" name="title" defaultValue={initial.title} required />
         </FormField>
         <div className="grid grid-cols-2 gap-4">
-          <FormField id="startDate" label="Start date" required error={fe.startDate}>
+          <FormField id="startDate" label={t('fieldStartDate')} required error={fe.startDate}>
             <Input id="startDate" name="startDate" type="date" defaultValue={initial.startDate} required />
           </FormField>
-          <FormField id="endDate" label="End date" required error={fe.endDate}>
+          <FormField id="endDate" label={t('fieldEndDate')} required error={fe.endDate}>
             <Input id="endDate" name="endDate" type="date" defaultValue={initial.endDate} required />
           </FormField>
         </div>
-        <FormField id="maxGuests" label="Max guests" required error={fe.maxGuests}>
+        <FormField id="maxGuests" label={t('fieldMaxGuests')} required error={fe.maxGuests}>
           <Input id="maxGuests" name="maxGuests" type="number" min={1} max={100} defaultValue={initial.maxGuests} required />
         </FormField>
-        <FormField id="notes" label="Notes" error={fe.notes}>
+        <FormField id="notes" label={t('fieldNotes')} error={fe.notes}>
           <Textarea id="notes" name="notes" rows={3} defaultValue={initial.notes ?? ''} />
         </FormField>
         <div className="flex justify-end gap-3">
-          <Link href={`/admin/trips/${id}`}><Button variant="ghost" type="button">Cancel</Button></Link>
-          <Button type="submit" disabled={pending}>{pending ? 'Saving…' : 'Save changes'}</Button>
+          <Link href={`/admin/trips/${id}`}><Button variant="ghost" type="button">{t('cancelButton')}</Button></Link>
+          <Button type="submit" disabled={pending}>{pending ? t('saving') : t('saveButton')}</Button>
         </div>
       </form>
 
       <section className="rounded-lg border border-danger-100 bg-danger-100 p-6">
-        <h2 className="text-sm font-semibold text-danger-700">Delete trip</h2>
+        <h2 className="text-sm font-semibold text-danger-700">{tDelete('heading')}</h2>
         <p className="mt-1 text-xs text-danger-700/80">
-          Hard-delete. Use this for test data only — real reservations should be kept for history.
+          {tDelete('body')}
         </p>
         <form
           action={`/admin/trips/${id}/delete`}
           method="post"
           className="mt-5 flex justify-end"
-          onSubmit={(e) => { if (!confirm('Delete this trip?')) e.preventDefault(); }}
+          onSubmit={(e) => { if (!confirm(tDelete('confirm'))) e.preventDefault(); }}
         >
-          <Button type="submit" variant="danger">Delete</Button>
+          <Button type="submit" variant="danger">{tDelete('button')}</Button>
         </form>
       </section>
     </div>

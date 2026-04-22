@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { FormField } from '@/components/ui/form-field';
 import { updateUserAction } from './actions';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   id: number;
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export function EditUserForm({ id, initial }: Props) {
+  const t = useTranslations('admin.users.form');
+  const tRole = useTranslations('admin.users.role');
   const [state, action, pending] = useActionState(
     updateUserAction.bind(null, id),
     undefined,
@@ -21,9 +24,9 @@ export function EditUserForm({ id, initial }: Props) {
 
   return (
     <section className="rounded-lg border border-border bg-surface p-6 shadow-xs">
-      <h2 className="text-sm font-semibold text-fg">Profile</h2>
+      <h2 className="text-sm font-semibold text-fg">{t('profileHeading')}</h2>
       <p className="mt-1 text-xs text-fg-muted">
-        Username and email must be unique across the workspace.
+        {t('profileHint')}
       </p>
 
       <form action={action} className="mt-5 flex flex-col gap-5">
@@ -32,22 +35,22 @@ export function EditUserForm({ id, initial }: Props) {
             {state.error}
           </p>
         )}
-        <FormField id="username" label="Username" required error={fe.username}>
+        <FormField id="username" label={t('fieldUsername')} required error={fe.username}>
           <Input id="username" name="username" defaultValue={initial.username} required />
         </FormField>
-        <FormField id="email" label="Email" required error={fe.email}>
+        <FormField id="email" label={t('fieldEmail')} required error={fe.email}>
           <Input id="email" name="email" type="email" defaultValue={initial.email} required />
         </FormField>
-        <FormField id="role" label="Role" required error={fe.role}>
+        <FormField id="role" label={t('fieldRole')} required error={fe.role}>
           <Select id="role" name="role" defaultValue={initial.role}>
-            <option value="ADMIN">Admin</option>
-            <option value="SUPERADMIN">Superadmin</option>
-            <option value="HOUSEKEEPER">Housekeeper</option>
+            <option value="ADMIN">{tRole('ADMIN')}</option>
+            <option value="SUPERADMIN">{tRole('SUPERADMIN')}</option>
+            <option value="HOUSEKEEPER">{tRole('HOUSEKEEPER')}</option>
           </Select>
         </FormField>
         <div className="flex justify-end">
           <Button type="submit" disabled={pending}>
-            {pending ? 'Saving…' : 'Save changes'}
+            {pending ? t('saving') : t('saveButton')}
           </Button>
         </div>
       </form>

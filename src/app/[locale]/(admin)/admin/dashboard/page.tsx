@@ -17,6 +17,7 @@ import { KpiCard } from '@/components/admin/kpi-card';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pill } from '@/components/ui/pill';
 import { Button } from '@/components/ui/button';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +33,14 @@ interface AttentionItem {
 function fmtDate(d: Date): string { return d.toISOString().slice(0, 10); }
 function shortWhen(d: Date): string { return d.toISOString().replace('T', ' ').slice(5, 16); }
 
-export default async function DashboardPage() {
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function DashboardPage({ params }: PageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('admin.dashboard');
   const admin = await requireAdmin();
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
@@ -48,37 +56,37 @@ export default async function DashboardPage() {
   const overdueAttention = overdueInvoices.filter((inv) => inv.dueDate && inv.dueDate.getTime() < today.getTime());
 
   const kpis = [
-    { label: 'Arrivals this week', value: upcoming.length, icon: Plane },
-    { label: 'Pending registrations', value: pendingRegs.length, icon: ClipboardCheck, tone: (pendingRegs.length > 0 ? 'warning' : 'neutral') as 'warning' | 'neutral' },
-    { label: 'Unpaid housekeeping', value: unpaidHousekeeping, icon: Sparkles, tone: (unpaidHousekeeping > 0 ? 'warning' : 'neutral') as 'warning' | 'neutral' },
-    { label: 'Overdue invoices', value: overdueCount, icon: Receipt, tone: (overdueCount > 0 ? 'danger' : 'neutral') as 'danger' | 'neutral' },
+    { label: t('kpi.arrivals'), value: upcoming.length, icon: Plane },
+    { label: t('kpi.pendingRegistrations'), value: pendingRegs.length, icon: ClipboardCheck, tone: (pendingRegs.length > 0 ? 'warning' : 'neutral') as 'warning' | 'neutral' },
+    { label: t('kpi.unpaidHousekeeping'), value: unpaidHousekeeping, icon: Sparkles, tone: (unpaidHousekeeping > 0 ? 'warning' : 'neutral') as 'warning' | 'neutral' },
+    { label: t('kpi.overdueInvoices'), value: overdueCount, icon: Receipt, tone: (overdueCount > 0 ? 'danger' : 'neutral') as 'danger' | 'neutral' },
   ];
 
   const attention: AttentionItem[] = [
     ...overdueAttention.slice(0, 3).map((inv) => ({
       icon: Receipt,
       tone: 'danger' as const,
-      title: `Invoice ${inv.invoiceNumber} is overdue`,
+      title: t('attention.invoiceOverdue', { number: inv.invoiceNumber }),
       meta: `${inv.clientName} · ${formatMoney(inv.totalAmount.toFixed(2), inv.currency)}`,
       href: `/admin/invoices/${inv.id}`,
-      action: 'Open',
+      action: t('attention.actionOpen'),
     })),
     ...pendingRegs.slice(0, 5 - Math.min(overdueAttention.length, 3)).map((r) => ({
       icon: ClipboardCheck,
       tone: 'warning' as const,
-      title: `${r.guests[0]?.firstName ?? 'A guest'} submitted a registration`,
+      title: t('attention.registrationSubmitted', { name: r.guests[0]?.firstName ?? 'A guest' }),
       meta: `${r.trip.property.name} · ${shortWhen(r.submittedAt)}`,
       href: `/admin/registrations/${r.id}`,
-      action: 'Review',
+      action: t('attention.actionReview'),
     })),
   ];
 
   return (
     <div className="flex flex-col gap-8">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-fg">Dashboard</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-fg">{t('heading')}</h1>
         <p className="mt-1 text-sm text-fg-muted">
-          Welcome back, {admin.username}. Here&apos;s what&apos;s happening today.
+          {t('welcome', { username: admin.username })}
         </p>
       </header>
 
@@ -104,13 +112,13 @@ export default async function DashboardPage() {
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Needs attention</CardTitle>
-            <span className="text-xs text-fg-muted">{attention.length} items</span>
+            <CardTitle>{t('attention.heading')}</CardTitle>
+            <span className="text-xs text-fg-muted">{t('attention.itemCount', { count: attention.length })}</span>
           </CardHeader>
           {attention.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-10 text-center">
               <AlertCircle className="h-8 w-8 text-fg-subtle" strokeWidth={1.5} />
-              <p className="text-sm text-fg-muted">Nothing to review right now.</p>
+              <p className="text-sm text-fg-muted">{t('attention.empty')}</p>
             </div>
           ) : (
             <ul>
@@ -138,22 +146,22 @@ export default async function DashboardPage() {
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Arriving this week</CardTitle>
+            <CardTitle>{t('arrivals.heading')}</CardTitle>
             <Link href="/admin/trips" className="text-xs font-medium text-accent-600 hover:text-accent-700">
-              View all trips
+              {t('arrivals.viewAll')}
             </Link>
           </CardHeader>
           {upcoming.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-10 text-center">
               <Plane className="h-8 w-8 text-fg-subtle" strokeWidth={1.5} />
-              <p className="text-sm text-fg-muted">No arrivals in the next 7 days.</p>
+              <p className="text-sm text-fg-muted">{t('arrivals.empty')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-surface-2">
-                    {['Trip', 'Property', 'Dates', 'Source', 'Guest'].map((h) => (
+                    {([t('arrivals.colTrip'), t('arrivals.colProperty'), t('arrivals.colDates'), t('arrivals.colSource'), t('arrivals.colGuest')] as string[]).map((h) => (
                       <th key={h} className="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-fg-muted">
                         {h}
                       </th>
@@ -161,17 +169,17 @@ export default async function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {upcoming.map((t, i) => (
-                    <tr key={t.id} className={`${i < upcoming.length - 1 ? 'border-b border-border' : ''} hover:bg-surface-2`}>
+                  {upcoming.map((trip, i) => (
+                    <tr key={trip.id} className={`${i < upcoming.length - 1 ? 'border-b border-border' : ''} hover:bg-surface-2`}>
                       <td className="px-4 py-3 font-medium text-fg">
-                        <Link href={`/admin/trips/${t.id}`} className="hover:text-accent-700">{t.title}</Link>
+                        <Link href={`/admin/trips/${trip.id}`} className="hover:text-accent-700">{trip.title}</Link>
                       </td>
-                      <td className="px-4 py-3 text-fg">{t.property.name}</td>
-                      <td className="px-4 py-3 text-fg-muted">{fmtDate(t.startDate)} → {fmtDate(t.endDate)}</td>
+                      <td className="px-4 py-3 text-fg">{trip.property.name}</td>
+                      <td className="px-4 py-3 text-fg-muted">{fmtDate(trip.startDate)} → {fmtDate(trip.endDate)}</td>
                       <td className="px-4 py-3">
-                        <Pill tone={t.source === 'MANUAL' ? 'neutral' : 'info'}>{t.source.toLowerCase()}</Pill>
+                        <Pill tone={trip.source === 'MANUAL' ? 'neutral' : 'info'}>{trip.source.toLowerCase()}</Pill>
                       </td>
-                      <td className="px-4 py-3 text-fg-muted">{t.externalGuestName ?? '—'}</td>
+                      <td className="px-4 py-3 text-fg-muted">{trip.externalGuestName ?? '—'}</td>
                     </tr>
                   ))}
                 </tbody>

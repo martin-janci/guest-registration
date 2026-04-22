@@ -6,15 +6,24 @@ import { popFlash } from '@/lib/flash';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Pill } from '@/components/ui/pill';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
 function formatWhen(d: Date | null): string {
-  if (!d) return 'never';
+  if (!d) return '';
   return d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
 }
 
-export default async function CalendarsPage() {
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function CalendarsPage({ params }: PageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('admin.calendars.list');
+  const tCommon = await getTranslations('admin.common');
   await requireAdmin();
   const rows = await listCalendars();
   const flash = await popFlash();
@@ -23,13 +32,13 @@ export default async function CalendarsPage() {
     <div className="flex flex-col gap-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-fg">Calendars</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-fg">{t('heading')}</h1>
           <p className="mt-1 text-sm text-fg-muted">
-            Airbnb ics feeds. Import runs when you click Sync.
+            {t('subheading')}
           </p>
         </div>
         <Link href="/admin/calendars/new">
-          <Button><Plus className="h-4 w-4" strokeWidth={1.75} />New calendar</Button>
+          <Button><Plus className="h-4 w-4" strokeWidth={1.75} />{t('newButton')}</Button>
         </Link>
       </header>
 
@@ -49,29 +58,29 @@ export default async function CalendarsPage() {
         rowKey={(c) => c.id}
         rows={rows}
         columns={[
-          { key: 'property', header: 'Property', render: (c) => (
+          { key: 'property', header: t('colProperty'), render: (c) => (
             <Link href={`/admin/properties/${c.property.id}`} className="font-medium text-fg hover:text-accent-700">
               {c.property.name}
             </Link>
           ) },
-          { key: 'name', header: 'Name', render: (c) => <span className="text-fg">{c.name}</span> },
-          { key: 'lastSync', header: 'Last sync', render: (c) => (
+          { key: 'name', header: t('colName'), render: (c) => <span className="text-fg">{c.name}</span> },
+          { key: 'lastSync', header: t('colLastSync'), render: (c) => (
             c.lastSyncError
               ? <Pill tone="danger">{c.lastSyncError}</Pill>
-              : <span className="text-fg-muted text-xs">{formatWhen(c.lastSyncedAt)}</span>
+              : <span className="text-fg-muted text-xs">{c.lastSyncedAt ? formatWhen(c.lastSyncedAt) : t('never')}</span>
           ) },
-          { key: 'interval', header: 'Interval', align: 'right', render: (c) => (
-            <span className="tabular-nums text-fg">{c.syncIntervalMin} min</span>
+          { key: 'interval', header: t('colInterval'), align: 'right', render: (c) => (
+            <span className="tabular-nums text-fg">{t('intervalMin', { n: c.syncIntervalMin })}</span>
           ) },
           { key: 'actions', header: '', align: 'right', render: (c) => (
             <div className="flex items-center justify-end gap-3">
               <form action={`/admin/calendars/${c.id}/sync`} method="post">
                 <button type="submit" className="text-sm font-medium text-accent-600 hover:text-accent-700">
-                  Sync now
+                  {tCommon('syncNow')}
                 </button>
               </form>
               <Link href={`/admin/calendars/${c.id}/edit`} className="text-sm font-medium text-accent-600 hover:text-accent-700">
-                Edit
+                {tCommon('edit')}
               </Link>
             </div>
           ) },
@@ -80,7 +89,7 @@ export default async function CalendarsPage() {
           <>
             <CalIcon className="h-10 w-10 text-fg-subtle" strokeWidth={1.5} />
             <p className="text-sm text-fg-muted">
-              No calendars yet. <Link href="/admin/calendars/new" className="text-accent-600">Add one</Link>.
+              {t('empty')} <Link href="/admin/calendars/new" className="text-accent-600">{tCommon('addOne')}</Link>.
             </p>
           </>
         }

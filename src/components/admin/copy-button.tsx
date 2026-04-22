@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   value: string;
@@ -10,8 +11,10 @@ interface Props {
   className?: string;
 }
 
-export function CopyButton({ value, label = 'Copy', className }: Props) {
+export function CopyButton({ value, label, className }: Props) {
+  const t = useTranslations('admin.common');
   const [copied, setCopied] = useState(false);
+  const displayLabel = label ?? t('copied');
   return (
     <button
       type="button"
@@ -26,7 +29,7 @@ export function CopyButton({ value, label = 'Copy', className }: Props) {
       )}
     >
       {copied ? <Check className="h-3.5 w-3.5" strokeWidth={1.75} /> : <Copy className="h-3.5 w-3.5" strokeWidth={1.75} />}
-      {copied ? 'Copied' : label}
+      {copied ? t('copied') : displayLabel}
     </button>
   );
 }

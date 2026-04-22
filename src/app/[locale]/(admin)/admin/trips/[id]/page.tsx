@@ -6,24 +6,25 @@ import { renderQrSvg } from '@/lib/qr';
 import { Button } from '@/components/ui/button';
 import { Pill } from '@/components/ui/pill';
 import { CopyButton } from '@/components/admin/copy-button';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }
 
 function baseUrl(): string {
-  // SERVER_URL is not part of the zod-validated `env` module (which is the M1 subset).
-  // Reading process.env directly here is acceptable: this is a presentation concern
-  // (building public URLs for copy/QR) and falls back to localhost in dev.
   const url = process.env.SERVER_URL ?? 'http://localhost:3000';
   return url.replace(/\/+$/, '');
 }
 
 export default async function TripDetailPage({ params }: PageProps) {
+  const { id: idRaw, locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('admin.trips.detail');
+  const tCommon = await getTranslations('admin.common');
   await requireAdmin();
-  const { id: idRaw } = await params;
   const id = Number.parseInt(idRaw, 10);
   if (!Number.isFinite(id)) notFound();
   const trip = await getTripById(id);
@@ -43,24 +44,24 @@ export default async function TripDetailPage({ params }: PageProps) {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href={`/admin/trips/${trip.id}/edit`}><Button variant="secondary">Edit</Button></Link>
+          <Link href={`/admin/trips/${trip.id}/edit`}><Button variant="secondary">{tCommon('edit')}</Button></Link>
         </div>
       </header>
 
       <section className="rounded-lg border border-border bg-surface p-6 shadow-xs">
-        <h2 className="text-sm font-semibold text-fg">Details</h2>
+        <h2 className="text-sm font-semibold text-fg">{t('detailsHeading')}</h2>
         <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-          <dt className="text-fg-muted">Source</dt>
+          <dt className="text-fg-muted">{t('fieldSource')}</dt>
           <dd><Pill tone={trip.source === 'MANUAL' ? 'neutral' : 'info'}>{trip.source.toLowerCase()}</Pill></dd>
-          <dt className="text-fg-muted">Max guests</dt>
+          <dt className="text-fg-muted">{t('fieldMaxGuests')}</dt>
           <dd className="text-fg">{trip.maxGuests}</dd>
-          <dt className="text-fg-muted">Guest</dt>
+          <dt className="text-fg-muted">{t('fieldGuest')}</dt>
           <dd className="text-fg">{trip.externalGuestName ?? '—'}</dd>
           {trip.externalReservationId && (<>
-            <dt className="text-fg-muted">Airbnb reservation</dt>
+            <dt className="text-fg-muted">{t('fieldAirbnbReservation')}</dt>
             <dd className="text-fg font-mono text-xs">{trip.externalReservationId}</dd>
           </>)}
-          <dt className="text-fg-muted">Notes</dt>
+          <dt className="text-fg-muted">{t('fieldNotes')}</dt>
           <dd className="text-fg whitespace-pre-wrap">{trip.notes ?? '—'}</dd>
         </dl>
       </section>
@@ -69,12 +70,12 @@ export default async function TripDetailPage({ params }: PageProps) {
         <section className="rounded-lg border border-border bg-surface p-6 shadow-xs">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-sm font-semibold text-fg">Registration link</h2>
+              <h2 className="text-sm font-semibold text-fg">{t('registrationLink.heading')}</h2>
               <p className="mt-1 text-xs text-fg-muted">
-                Share this with guests. It opens the registration form prefilled with this trip.
+                {t('registrationLink.body')}
               </p>
             </div>
-            <CopyButton value={registrationUrl} label="Copy URL" />
+            <CopyButton value={registrationUrl} label={t('registrationLink.copyButton')} />
           </div>
           <div className="mt-4 grid grid-cols-[auto_1fr] items-start gap-6">
             <div
@@ -86,16 +87,16 @@ export default async function TripDetailPage({ params }: PageProps) {
                 {registrationUrl}
               </code>
               <p className="text-xs text-fg-muted">
-                Confirm code: <span className="font-mono">{confirmCode}</span>
+                {t('registrationLink.confirmCode', { code: confirmCode ?? '' })}
               </p>
             </div>
           </div>
         </section>
       ) : (
         <section className="rounded-lg border border-warning-100 bg-warning-100 p-6">
-          <h2 className="text-sm font-semibold text-warning-700">No registration link</h2>
+          <h2 className="text-sm font-semibold text-warning-700">{t('noLink.heading')}</h2>
           <p className="mt-1 text-xs text-warning-700/80">
-            This trip has no confirm code. Delete and recreate it to regenerate one.
+            {t('noLink.body')}
           </p>
         </section>
       )}

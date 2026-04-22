@@ -7,16 +7,20 @@ import { listUsers } from '@/modules/users/service';
 import { Button } from '@/components/ui/button';
 import { Pill } from '@/components/ui/pill';
 import { HousekeepersPanel } from './housekeepers-panel';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }
 
 export default async function PropertyDetailPage({ params }: PageProps) {
+  const { id: idRaw, locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations('admin.properties');
+  const tCommon = await getTranslations('admin.common');
   await requireAdmin();
-  const { id: idRaw } = await params;
   const id = Number.parseInt(idRaw, 10);
   if (!Number.isFinite(id)) notFound();
 
@@ -41,20 +45,20 @@ export default async function PropertyDetailPage({ params }: PageProps) {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-fg">{p.name}</h1>
           <p className="mt-1 text-sm text-fg-muted">
-            Owner: {p.owner.username} {p.deletedAt && <Pill tone="danger">Deleted</Pill>}
+            {t('detail.ownerLabel', { name: p.owner.username })} {p.deletedAt && <Pill tone="danger">{t('list.statusDeleted')}</Pill>}
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href={`/admin/properties/${p.id}/edit`}><Button variant="secondary">Edit</Button></Link>
+          <Link href={`/admin/properties/${p.id}/edit`}><Button variant="secondary">{tCommon('edit')}</Button></Link>
         </div>
       </header>
 
       <section className="rounded-lg border border-border bg-surface p-6 shadow-xs">
-        <h2 className="text-sm font-semibold text-fg">Details</h2>
+        <h2 className="text-sm font-semibold text-fg">{t('detail.detailsHeading')}</h2>
         <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-          <dt className="text-fg-muted">Max guests</dt>
+          <dt className="text-fg-muted">{t('detail.fieldMaxGuests')}</dt>
           <dd className="text-fg">{p.maxGuests ?? '—'}</dd>
-          <dt className="text-fg-muted">Notes</dt>
+          <dt className="text-fg-muted">{t('detail.fieldNotes')}</dt>
           <dd className="text-fg whitespace-pre-wrap">{p.notes ?? '—'}</dd>
         </dl>
       </section>
