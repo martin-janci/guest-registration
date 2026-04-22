@@ -12,6 +12,7 @@ import {
   Calendar,
   Users,
   Settings,
+  CircleDot,
   type LucideIcon,
 } from 'lucide-react';
 import { Wordmark } from '@/components/brand/wordmark';
@@ -47,6 +48,7 @@ const groups: NavGroup[] = [
       { href: '/admin/calendars', label: 'Calendars', icon: Calendar },
       { href: '/admin/users', label: 'Users', icon: Users },
       { href: '/admin/settings', label: 'Settings', icon: Settings },
+      { href: '/admin/jobs', label: 'Jobs', icon: CircleDot },
     ],
   },
 ];
