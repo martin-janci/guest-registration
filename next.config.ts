@@ -1,7 +1,10 @@
 import type { NextConfig } from 'next';
 import withSerwistInit from '@serwist/next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const isProd = process.env.NODE_ENV === 'production';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 const withSerwist = withSerwistInit({
   swSrc: 'src/worker/index.ts',
@@ -34,4 +37,4 @@ const config: NextConfig = {
   },
 };
 
-export default withSerwist(config);
+export default withSerwist(withNextIntl(config));

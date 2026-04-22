@@ -1,22 +1,15 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { env } from '@/lib/env';
+import createMiddleware from 'next-intl/middleware';
+import { locales, defaultLocale } from '@/lib/i18n/locales';
 
-export function middleware(req: NextRequest) {
-  const isAdmin = req.nextUrl.pathname.startsWith('/admin');
-  const isHousekeeper = req.nextUrl.pathname.startsWith('/housekeeper');
-  if (!isAdmin && !isHousekeeper) return NextResponse.next();
-
-  const sessionId = req.cookies.get(env.SESSION_COOKIE_NAME)?.value;
-  if (!sessionId) {
-    const url = req.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('next', req.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-  return NextResponse.next();
-}
+export default createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'as-needed',   // sk (default) has no prefix; en/cs do
+  localeDetection: true,
+  localeCookie: { name: 'NEXT_LOCALE' },
+});
 
 export const config = {
-  matcher: ['/admin/:path*', '/housekeeper/:path*'],
+  // Skip Next internals, static files, api, worker
+  matcher: ['/((?!_next|_vercel|api|sw\\.js|workbox-|.*\\.(?:png|jpg|jpeg|svg|gif|webp|ico|webmanifest|txt)$).*)'],
 };
