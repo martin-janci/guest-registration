@@ -14,6 +14,24 @@ const config: NextConfig = {
   output: 'standalone',
   experimental: { typedRoutes: true },
   logging: { fetches: { fullUrl: false } },
+  // Keep Node-only packages out of the webpack server bundle so that
+  // instrumentation.ts (which dynamically imports the scheduler) builds cleanly.
+  serverExternalPackages: ['node-cron', 'node-ical', 'axios', '@prisma/client', 'prisma'],
+  webpack(webpackConfig, { isServer }) {
+    if (isServer) {
+      // Treat all node: protocol imports as external (they are native Node modules).
+      webpackConfig.externals = [
+        ...(Array.isArray(webpackConfig.externals) ? webpackConfig.externals : [webpackConfig.externals].filter(Boolean)),
+        ({ request }: { request?: string }, callback: (err?: Error | null, result?: string) => void) => {
+          if (request && (request.startsWith('node:') || ['fs', 'path', 'child_process', 'crypto', 'os', 'stream', 'util', 'events', 'net', 'tls', 'http', 'https', 'zlib', 'buffer'].includes(request))) {
+            return callback(null, `commonjs ${request}`);
+          }
+          callback();
+        },
+      ];
+    }
+    return webpackConfig;
+  },
 };
 
 export default withSerwist(config);
