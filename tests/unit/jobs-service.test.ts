@@ -5,6 +5,7 @@ describe('jobs schemas', () => {
   it('enqueueInputSchema accepts AIRBNB_SYNC with calendarId', () => {
     const r = enqueueInputSchema.parse({ kind: 'AIRBNB_SYNC', payload: { calendarId: 42 } });
     expect(r.kind).toBe('AIRBNB_SYNC');
+    if (r.kind !== 'AIRBNB_SYNC') throw new Error('unreachable');
     expect(r.payload.calendarId).toBe(42);
   });
 
