@@ -7,12 +7,16 @@ import { Label } from '@/components/ui/label';
 import { Wordmark } from '@/components/brand/wordmark';
 import { loginAction } from './actions';
 import { useTranslations } from 'next-intl';
+import { LangSwitch } from '@/components/ui/lang-switch';
 
 export default function LoginPage() {
   const t = useTranslations('login');
   const [state, action, pending] = useActionState(loginAction, undefined);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-4 py-12">
+    <main className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12">
+      <div className="absolute right-4 top-4">
+        <LangSwitch />
+      </div>
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
           <Wordmark size={32} />

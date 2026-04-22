@@ -18,6 +18,7 @@ import {
 import { Wordmark } from '@/components/brand/wordmark';
 import { cn } from '@/lib/cn';
 import { useTranslations } from 'next-intl';
+import { LocaleMenu } from '@/components/admin/locale-menu';
 
 interface NavItem {
   href: string;
@@ -98,7 +99,11 @@ export function Sidebar({ user }: { user: { username: string; email: string; rol
         </div>
       ))}
 
-      <div className="mt-auto flex items-center gap-2.5 border-t border-border px-2.5 pt-3">
+      <div className="mt-auto flex flex-col gap-1 border-t border-border pt-3">
+        <LocaleMenu />
+      </div>
+
+      <div className="flex items-center gap-2.5 px-2.5 pt-2">
         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-500 text-xs font-semibold text-white">
           {initials}
         </div>

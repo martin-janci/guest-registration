@@ -3,6 +3,7 @@ import { redirect } from '@/lib/i18n/link';
 import { getTripByConfirmCode, countSubmissionsForTrip } from '@/modules/registrations/service';
 import { RegisterForm } from './form';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { LangSwitch } from '@/components/ui/lang-switch';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,10 @@ export default async function RegisterPage({ params }: PageProps) {
   if (existing > 0) return await redirect(`/register/${code}/success?existing=1`);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-6 px-4 py-8">
+    <main className="relative mx-auto flex min-h-screen max-w-xl flex-col gap-6 px-4 py-8">
+      <div className="absolute right-0 top-4">
+        <LangSwitch />
+      </div>
       <header>
         <p className="text-xs font-medium uppercase tracking-wider text-fg-subtle">{t('eyebrow')}</p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-fg">{trip.property.name}</h1>
