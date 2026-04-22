@@ -4,6 +4,7 @@ import { useActionState, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { addItemAction, updateItemAction, type ItemState } from './items/actions';
+import { useTranslations } from 'next-intl';
 
 interface AddProps {
   invoiceId: number;
@@ -17,6 +18,8 @@ interface EditProps {
 }
 
 export function ItemAddForm({ invoiceId }: AddProps) {
+  const t = useTranslations('admin.invoices.item');
+  const tc = useTranslations('admin.common');
   const [state, action, pending] = useActionState<ItemState | undefined, FormData>(
     addItemAction.bind(null, invoiceId),
     undefined,
@@ -24,28 +27,29 @@ export function ItemAddForm({ invoiceId }: AddProps) {
   return (
     <form action={action} className="flex flex-wrap items-end gap-2 border-t border-border px-4 py-3">
       <div className="flex min-w-[200px] flex-1 flex-col gap-1">
-        <label className="text-xs font-medium text-fg">Description</label>
+        <label className="text-xs font-medium text-fg">{t('description')}</label>
         <Input name="description" required />
       </div>
       <div className="flex w-20 flex-col gap-1">
-        <label className="text-xs font-medium text-fg">Qty</label>
+        <label className="text-xs font-medium text-fg">{t('qty')}</label>
         <Input name="quantity" defaultValue="1" required />
       </div>
       <div className="flex w-24 flex-col gap-1">
-        <label className="text-xs font-medium text-fg">Unit €</label>
+        <label className="text-xs font-medium text-fg">{t('unitPrice')}</label>
         <Input name="unitPrice" required />
       </div>
       <div className="flex w-20 flex-col gap-1">
-        <label className="text-xs font-medium text-fg">VAT %</label>
+        <label className="text-xs font-medium text-fg">{t('vatRate')}</label>
         <Input name="vatRate" defaultValue="0" required />
       </div>
-      <Button type="submit" size="md" disabled={pending}>Add</Button>
+      <Button type="submit" size="md" disabled={pending}>{t('addButton')}</Button>
       {state?.error && <p className="w-full text-xs text-danger-700">{state.error}</p>}
     </form>
   );
 }
 
 export function ItemEditForm({ invoiceId, itemId, initial, onDone }: EditProps) {
+  const tc = useTranslations('admin.common');
   const [state, action, pending] = useActionState<ItemState | undefined, FormData>(
     async (prev, formData) => {
       const r = await updateItemAction(invoiceId, itemId, prev, formData);
@@ -63,8 +67,8 @@ export function ItemEditForm({ invoiceId, itemId, initial, onDone }: EditProps) 
       <Input name="quantity" defaultValue={initial.quantity} className="w-20" required />
       <Input name="unitPrice" defaultValue={initial.unitPrice} className="w-24" required />
       <Input name="vatRate" defaultValue={initial.vatRate} className="w-20" required />
-      <Button type="submit" size="sm" disabled={pending}>Save</Button>
-      <Button type="button" variant="ghost" size="sm" onClick={onDone}>Cancel</Button>
+      <Button type="submit" size="sm" disabled={pending}>{tc('save')}</Button>
+      <Button type="button" variant="ghost" size="sm" onClick={onDone}>{tc('cancel')}</Button>
       {state?.error && <p className="w-full text-xs text-danger-700">{state.error}</p>}
     </form>
   );
@@ -89,6 +93,8 @@ export function ItemRow({
   totalDisplay: string;
   lineDisplay: string;
 }) {
+  const t = useTranslations('admin.invoices.item');
+  const tc = useTranslations('admin.common');
   const [editing, setEditing] = useState(false);
   if (editing) {
     return (
@@ -110,13 +116,13 @@ export function ItemRow({
       </div>
       <div className="w-24 text-right tabular-nums font-medium text-fg">{totalDisplay}</div>
       <button type="button" onClick={() => setEditing(true)} className="text-xs font-medium text-accent-600 hover:text-accent-700">
-        Edit
+        {t('editButton')}
       </button>
       <form
         action={`/admin/invoices/${invoiceId}/items/${itemId}/delete`}
         method="post"
       >
-        <button type="submit" className="text-xs font-medium text-danger-700 hover:underline">Delete</button>
+        <button type="submit" className="text-xs font-medium text-danger-700 hover:underline">{t('deleteButton')}</button>
       </form>
     </div>
   );

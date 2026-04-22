@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { DataTable } from '@/components/ui/data-table';
 import { Pill } from '@/components/ui/pill';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,8 @@ function fmt(d: Date): string {
 
 export default async function JobsPage({ searchParams }: PageProps) {
   await requireAdmin();
+  const t = await getTranslations('admin.jobs');
+  const tc = await getTranslations('admin.common');
   const sp = await searchParams;
   const parsed = jobFiltersSchema.safeParse({
     status: sp.status || undefined,
@@ -37,44 +40,44 @@ export default async function JobsPage({ searchParams }: PageProps) {
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-fg">Jobs</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-fg">{t('list.heading')}</h1>
         <p className="mt-1 text-sm text-fg-muted">
-          Background work — Airbnb syncs + daily overdue flip. Most recent first (last 200).
+          {t('list.subheading')}
         </p>
       </header>
 
       <form method="get" className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-surface p-4 shadow-xs">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-fg">Status</label>
+          <label className="text-xs font-medium text-fg">{t('list.filterStatus')}</label>
           <Select name="status" defaultValue={sp.status ?? ''}>
-            <option value="">All</option>
-            <option value="PENDING">Pending</option>
-            <option value="RUNNING">Running</option>
-            <option value="DONE">Done</option>
-            <option value="FAILED">Failed</option>
+            <option value="">{t('list.filterAll')}</option>
+            <option value="PENDING">{t('status.PENDING')}</option>
+            <option value="RUNNING">{t('status.RUNNING')}</option>
+            <option value="DONE">{t('status.DONE')}</option>
+            <option value="FAILED">{t('status.FAILED')}</option>
           </Select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-fg">Kind</label>
+          <label className="text-xs font-medium text-fg">{t('list.filterKind')}</label>
           <Select name="kind" defaultValue={sp.kind ?? ''}>
-            <option value="">All</option>
-            <option value="AIRBNB_SYNC">Airbnb sync</option>
-            <option value="INVOICE_OVERDUE_FLIP">Invoice overdue flip</option>
+            <option value="">{t('list.filterAll')}</option>
+            <option value="AIRBNB_SYNC">{t('kind.AIRBNB_SYNC')}</option>
+            <option value="INVOICE_OVERDUE_FLIP">{t('kind.INVOICE_OVERDUE_FLIP')}</option>
           </Select>
         </div>
-        <Button type="submit" variant="secondary">Apply</Button>
+        <Button type="submit" variant="secondary">{tc('apply')}</Button>
       </form>
 
       <DataTable
         rowKey={(r) => r.id}
         rows={rows}
         columns={[
-          { key: 'id', header: '#', render: (j) => <span className="font-mono text-xs text-fg-muted">{j.id}</span> },
-          { key: 'kind', header: 'Kind', render: (j) => <span className="text-fg">{j.kind.toLowerCase().replace(/_/g, ' ')}</span> },
-          { key: 'status', header: 'Status', render: (j) => <Pill tone={statusTone(j.status)}>{j.status.toLowerCase()}</Pill> },
-          { key: 'attempts', header: 'Attempts', align: 'right', render: (j) => <span className="tabular-nums text-fg">{j.attempts}</span> },
-          { key: 'runAfter', header: 'Run after', render: (j) => <span className="text-xs text-fg-muted">{fmt(j.runAfter)}</span> },
-          { key: 'error', header: 'Last error', render: (j) => (
+          { key: 'id', header: t('list.colId'), render: (j) => <span className="font-mono text-xs text-fg-muted">{j.id}</span> },
+          { key: 'kind', header: t('list.colKind'), render: (j) => <span className="text-fg">{t(`kind.${j.kind}`)}</span> },
+          { key: 'status', header: t('list.colStatus'), render: (j) => <Pill tone={statusTone(j.status)}>{t(`status.${j.status}`)}</Pill> },
+          { key: 'attempts', header: t('list.colAttempts'), align: 'right', render: (j) => <span className="tabular-nums text-fg">{j.attempts}</span> },
+          { key: 'runAfter', header: t('list.colRunAfter'), render: (j) => <span className="text-xs text-fg-muted">{fmt(j.runAfter)}</span> },
+          { key: 'error', header: t('list.colLastError'), render: (j) => (
             j.lastError ? <span className="line-clamp-2 max-w-xs text-xs text-danger-700">{j.lastError}</span> : <span className="text-xs text-fg-subtle">—</span>
           ) },
           { key: 'actions', header: '', align: 'right', render: (j) => (
@@ -82,13 +85,13 @@ export default async function JobsPage({ searchParams }: PageProps) {
               <form action={`/admin/jobs/${j.id}/retry`} method="post">
                 <button type="submit" className="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:text-accent-700">
                   <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.75} />
-                  Retry
+                  {t('list.retry')}
                 </button>
               </form>
             ) : null
           ) },
         ]}
-        emptyState={<><CircleDot className="h-10 w-10 text-fg-subtle" strokeWidth={1.5} /><p className="text-sm text-fg-muted">No jobs yet.</p></>}
+        emptyState={<><CircleDot className="h-10 w-10 text-fg-subtle" strokeWidth={1.5} /><p className="text-sm text-fg-muted">{t('list.empty')}</p></>}
       />
     </div>
   );

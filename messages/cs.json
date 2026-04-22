@@ -294,6 +294,241 @@
       "noDocument": "No document",
       "viewDocument": "View document",
       "guestDocument": "Guest document"
+    },
+    "registrations": {
+      "list": {
+        "heading": "Registrations",
+        "subheading": "Guest submissions waiting for review.",
+        "colTrip": "Trip",
+        "colProperty": "Property",
+        "colEmail": "Contact email",
+        "colGuests": "Guests",
+        "colSubmitted": "Submitted",
+        "colStatus": "Status",
+        "filterStatus": "Status",
+        "filterAll": "All",
+        "review": "Review",
+        "empty": "No registrations match these filters yet."
+      },
+      "detail": {
+        "eyebrow": "Registration #{id}",
+        "guestCount": "{count} guests",
+        "guestHeading": "Guest {number}: {name}",
+        "guestMeta": "{age} · {docType} #{docNumber}",
+        "decisionHeading": "Decision",
+        "approveNoteLabel": "Optional note to guest (approved)",
+        "approveNotePlaceholder": "e.g. 'Parking code is 1234.'",
+        "approvButton": "Approve & send email",
+        "rejectReasonLabel": "Reason (required for reject)",
+        "rejectButton": "Reject",
+        "statusLabel": "Status:",
+        "reviewedAt": "Reviewed {datetime} UTC",
+        "comment": "Comment"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected"
+      }
+    },
+    "invoices": {
+      "list": {
+        "heading": "Invoices",
+        "subheading": "Billing for stays, cleaning fees, deposits.",
+        "newButton": "New invoice",
+        "colNumber": "Invoice #",
+        "colClient": "Client",
+        "colIssued": "Issued",
+        "colDue": "Due",
+        "colTotal": "Total",
+        "colStatus": "Status",
+        "filterStatus": "Status",
+        "filterAll": "All",
+        "open": "Open",
+        "emptyCreate": "Create one"
+      },
+      "form": {
+        "newHeading": "New invoice",
+        "newSubheading": "Start with the client + header; add line items on the detail page.",
+        "fieldClientName": "Client name",
+        "fieldClientEmail": "Client email",
+        "fieldClientVat": "Client VAT",
+        "fieldClientAddress": "Client address",
+        "fieldIssueDate": "Issue date",
+        "fieldDueDate": "Due date",
+        "fieldCurrency": "Currency",
+        "fieldNotes": "Notes",
+        "createButton": "Create invoice",
+        "creating": "Creating…"
+      },
+      "detail": {
+        "eyebrow": "Invoice",
+        "issued": "issued {date}",
+        "due": "due {date}",
+        "clientHeading": "Client",
+        "clientName": "Name",
+        "clientEmail": "Email",
+        "clientVat": "VAT #",
+        "clientAddress": "Address",
+        "lineItemsHeading": "Line items",
+        "itemCount": "{count} items",
+        "noItems": "No items yet.",
+        "subtotal": "Subtotal",
+        "vat": "VAT",
+        "total": "Total",
+        "notesHeading": "Notes",
+        "warnNoItems": "Add at least one line item before sending.",
+        "deleteHeading": "Delete invoice",
+        "deleteBody": "Hard-delete. Prefer archiving (mark paid) for production invoices; use this for drafts and test data."
+      },
+      "item": {
+        "description": "Description",
+        "qty": "Qty",
+        "unitPrice": "Unit €",
+        "vatRate": "VAT %",
+        "addButton": "Add",
+        "editButton": "Edit",
+        "deleteButton": "Delete",
+        "vatLine": "{qty} × {unitPrice} · VAT {vatRate}% · line {lineTotal}"
+      },
+      "edit": {
+        "heading": "Edit invoice"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "SENT": "Sent",
+        "PAID": "Paid",
+        "OVERDUE": "Overdue",
+        "CANCELLED": "Cancelled"
+      },
+      "actions": {
+        "downloadPdf": "Download PDF",
+        "send": "Send by email",
+        "markPaid": "Mark paid"
+      }
+    },
+    "housekeeping": {
+      "list": {
+        "heading": "Housekeeping",
+        "subheading": "Cleaning tasks auto-created per reservation + manual add.",
+        "newButton": "New task",
+        "colDate": "Date",
+        "colProperty": "Property",
+        "colHousekeeper": "Housekeeper",
+        "colPay": "Pay",
+        "colStatus": "Status",
+        "colPaid": "Paid",
+        "filterStatus": "Status",
+        "filterAll": "All",
+        "filterHousekeeper": "Housekeeper",
+        "filterFrom": "From",
+        "filterTo": "To",
+        "filterUnpaidOnly": "Unpaid only",
+        "paid": "paid",
+        "unpaid": "unpaid",
+        "open": "Open",
+        "empty": "No tasks match these filters."
+      },
+      "form": {
+        "newHeading": "New task",
+        "newSubheading": "Manual cleaning task (not auto-created from an Airbnb sync).",
+        "fieldTrip": "Trip",
+        "tripPlaceholder": "Choose a trip…",
+        "fieldHousekeeper": "Housekeeper",
+        "housekeeperPlaceholder": "Choose a housekeeper…",
+        "fieldDate": "Cleaning date",
+        "fieldPay": "Pay (€)",
+        "fieldNotes": "Notes",
+        "createButton": "Create task",
+        "creating": "Creating…"
+      },
+      "detail": {
+        "eyebrow": "Housekeeping task #{id}",
+        "assignedTo": "assigned to {name}",
+        "detailsHeading": "Details",
+        "fieldTrip": "Trip",
+        "fieldDate": "Cleaning date",
+        "fieldStarted": "Started",
+        "fieldCompleted": "Completed",
+        "fieldNotes": "Notes",
+        "photosHeading": "Photos ({count})",
+        "noPhotos": "No photos uploaded yet.",
+        "reassignHeading": "Reassign",
+        "reassignFieldHousekeeper": "Housekeeper",
+        "reassignFieldPay": "New pay (€)",
+        "reassignButton": "Reassign"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "IN_PROGRESS": "In progress",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled"
+      },
+      "togglePaid": {
+        "markPaid": "Mark paid",
+        "markUnpaid": "Mark unpaid"
+      }
+    },
+    "jobs": {
+      "list": {
+        "heading": "Jobs",
+        "subheading": "Background work — Airbnb syncs + daily overdue flip. Most recent first (last 200).",
+        "colId": "#",
+        "colKind": "Kind",
+        "colStatus": "Status",
+        "colAttempts": "Attempts",
+        "colRunAfter": "Run after",
+        "colLastError": "Last error",
+        "filterStatus": "Status",
+        "filterAll": "All",
+        "filterKind": "Kind",
+        "retry": "Retry",
+        "empty": "No jobs yet."
+      },
+      "status": {
+        "PENDING": "Pending",
+        "RUNNING": "Running",
+        "DONE": "Done",
+        "FAILED": "Failed"
+      },
+      "kind": {
+        "AIRBNB_SYNC": "Airbnb sync",
+        "INVOICE_OVERDUE_FLIP": "Invoice overdue flip"
+      }
+    },
+    "settings": {
+      "heading": "Settings",
+      "profile": {
+        "brandHeading": "Brand & contact",
+        "saved": "Saved.",
+        "fieldCompanyName": "Company name",
+        "fieldIco": "IČO",
+        "fieldVat": "DIČ / VAT",
+        "fieldContactName": "Contact name",
+        "fieldPhone": "Phone",
+        "fieldWebsite": "Website",
+        "fieldAddress": "Billing address",
+        "fieldDescription": "Description on invoices",
+        "customLinesHeading": "Custom lines on invoices",
+        "fieldLine1": "Line 1",
+        "fieldLine2": "Line 2",
+        "fieldLine3": "Line 3",
+        "registrationHeading": "Guest registration",
+        "photoRequiredAdults": "Require document photos for adults",
+        "photoRequiredChildren": "Require document photos for children",
+        "fieldDateFormat": "Date format",
+        "fieldDefaultPay": "Default housekeeper pay (€)",
+        "saveButton": "Save profile"
+      },
+      "password": {
+        "heading": "Change password",
+        "saved": "Password changed.",
+        "fieldCurrent": "Current password",
+        "fieldNew": "New password",
+        "fieldNewHint": "At least 8 characters.",
+        "changeButton": "Change password",
+        "updating": "Updating…"
+      }
     }
   },
   "guest": {
