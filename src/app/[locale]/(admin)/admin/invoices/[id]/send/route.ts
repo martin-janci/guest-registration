@@ -8,6 +8,7 @@ import { env } from '@/lib/env';
 import { invoiceSentTemplate } from '@/modules/email/templates/invoice-sent';
 import { formatMoney } from '@/lib/money';
 import { prisma } from '@/db/client';
+import { defaultLocale } from '@/lib/i18n/locales';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
@@ -71,6 +72,7 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
     totalDisplay: formatMoney(inv.totalAmount.toFixed(2), inv.currency),
     dueDateDisplay: inv.dueDate ? inv.dueDate.toISOString().slice(0, 10) : null,
     senderName: admin.companyName ?? admin.username,
+    locale: defaultLocale,
   });
 
   await transporter.sendMail({

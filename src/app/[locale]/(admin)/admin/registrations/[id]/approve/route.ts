@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/authz';
 import { approveRegistration } from '@/modules/registrations/service';
 import { sendMail } from '@/modules/email/service';
 import { guestApprovedTemplate } from '@/modules/email/templates/guest-approved';
+import { defaultLocale } from '@/lib/i18n/locales';
 
 interface RouteContext { params: Promise<{ id: string }> }
 
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
         tripTitle: reg.trip.title,
         propertyName: reg.trip.property.name,
         adminComment: reg.adminComment,
+        locale: defaultLocale,
       }),
     });
   } catch (err) {

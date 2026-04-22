@@ -633,5 +633,35 @@
         "deleteAria": "Delete photo"
       }
     }
+  },
+  "email": {
+    "adminRegistration": {
+      "subject": "Nová registrácia hostí — {property}",
+      "greeting": "Ahoj {adminName},",
+      "body": "Hosť práve odoslal registráciu pre «{trip}» ({property}). Hostia: {guestCount}. Odoslané: {when}.",
+      "reviewCta": "Skontrolovať registráciu"
+    },
+    "guestConfirmation": {
+      "subject": "Registrácia prijatá — {property}",
+      "greeting": "Ahoj {name},",
+      "body": "Prijali sme vašu registráciu pre «{trip}» v {property}. Váš hostiteľ ju čoskoro skontroluje. Po schválení dostanete ďalší e-mail.",
+      "fix": "Ak ste si všimli chybu, odpovedzte na tento e-mail."
+    },
+    "guestApproved": {
+      "subject": "Registrácia schválená — {property}",
+      "greeting": "Ahoj {name},",
+      "body": "Vaša registrácia pre «{trip}» v {property} bola schválená.",
+      "noteFromHost": "Poznámka od hostiteľa:",
+      "footer": "Tešíme sa na vás!"
+    },
+    "invoiceSent": {
+      "subject": "Faktúra {invoiceNumber} od {senderName}",
+      "greeting": "Dobrý deň {clientName},",
+      "body": "V prílohe nájdete faktúru {invoiceNumber}.",
+      "total": "Suma: {total}",
+      "due": "Splatnosť: {dueDate}",
+      "relatedStay": "Súvisiaci pobyt: {property}",
+      "footer": "Ďakujeme,\n{senderName}"
+    }
   }
 }

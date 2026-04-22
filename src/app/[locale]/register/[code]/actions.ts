@@ -19,6 +19,9 @@ import { uploadFileValidation } from '@/modules/storage/schema';
 import { sendMail } from '@/modules/email/service';
 import { adminRegistrationTemplate } from '@/modules/email/templates/admin-registration';
 import { guestConfirmationTemplate } from '@/modules/email/templates/guest-confirmation';
+import { getLocale } from 'next-intl/server';
+import { pickLocale } from '@/modules/email/templates/i18n';
+import { defaultLocale } from '@/lib/i18n/locales';
 
 export type SubmitState = { error?: string; fieldErrors?: Record<string, string> };
 
@@ -53,6 +56,7 @@ export async function submitAction(
   _prev: SubmitState | undefined,
   formData: FormData,
 ): Promise<SubmitState> {
+  const guestLocale = pickLocale(await getLocale().catch(() => defaultLocale));
   const tripIdRaw = formData.get('tripId');
   const email = formData.get('email');
   const rawGuests = parseGuestsFromFormData(formData);
@@ -136,6 +140,7 @@ export async function submitAction(
         guestCount: registration.guests.length,
         reviewUrl,
         submittedAt,
+        locale: defaultLocale,
       }),
       replyTo: registration.email,
     });
@@ -151,6 +156,7 @@ export async function submitAction(
         guestFirstName: firstGuestFirstName,
         tripTitle: trip.title,
         propertyName: trip.property.name,
+        locale: guestLocale,
       }),
     });
   } catch (err) {

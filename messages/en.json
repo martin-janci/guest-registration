@@ -633,5 +633,35 @@
         "deleteAria": "Delete photo"
       }
     }
+  },
+  "email": {
+    "adminRegistration": {
+      "subject": "New guest registration — {property}",
+      "greeting": "Hi {adminName},",
+      "body": "A guest just submitted a registration for \"{trip}\" ({property}). Guests: {guestCount}. Submitted: {when}.",
+      "reviewCta": "Review registration"
+    },
+    "guestConfirmation": {
+      "subject": "Registration received — {property}",
+      "greeting": "Hi {name},",
+      "body": "We've received your registration for \"{trip}\" at {property}. Your host will review it shortly. You'll get another email once it's approved.",
+      "fix": "If you spot a mistake, just reply to this email."
+    },
+    "guestApproved": {
+      "subject": "Registration approved — {property}",
+      "greeting": "Hi {name},",
+      "body": "Your registration for \"{trip}\" at {property} has been approved.",
+      "noteFromHost": "Note from host:",
+      "footer": "See you soon!"
+    },
+    "invoiceSent": {
+      "subject": "Invoice {invoiceNumber} from {senderName}",
+      "greeting": "Hi {clientName},",
+      "body": "Please find invoice {invoiceNumber} attached.",
+      "total": "Total: {total}",
+      "due": "Due: {dueDate}",
+      "relatedStay": "Related stay: {property}",
+      "footer": "Thank you,\n{senderName}"
+    }
   }
 }

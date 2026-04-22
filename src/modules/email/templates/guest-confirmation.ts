@@ -1,33 +1,46 @@
+import type { Locale } from '@/lib/i18n/locales';
 import type { EmailTemplate } from './admin-registration';
+import { emailDict, render } from './i18n';
 
 export interface GuestConfirmationVars {
   guestFirstName: string;
   tripTitle: string;
   propertyName: string;
-}
-
-export function guestConfirmationTemplate(v: GuestConfirmationVars): EmailTemplate {
-  return {
-    subject: `Registration received — ${v.propertyName}`,
-    text:
-      `Hi ${v.guestFirstName},\n\n` +
-      `We've received your registration for "${v.tripTitle}" at ${v.propertyName}.\n` +
-      `Your host will review it shortly. You'll get another email once it's approved.\n\n` +
-      `If you spot a mistake, just reply to this email.\n`,
-    html: `
-<!doctype html>
-<html><body style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;">
-  <p>Hi ${escapeHtml(v.guestFirstName)},</p>
-  <p>We've received your registration for <strong>${escapeHtml(v.tripTitle)}</strong>
-    at ${escapeHtml(v.propertyName)}.</p>
-  <p>Your host will review it shortly. You'll get another email once it's approved.</p>
-  <p style="color:#64748b;font-size:13px;">If you spot a mistake, just reply to this email.</p>
-</body></html>`.trim(),
-  };
+  locale?: Locale;
 }
 
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+export function guestConfirmationTemplate(v: GuestConfirmationVars): EmailTemplate {
+  const dict = emailDict(v.locale).guestConfirmation;
+
+  const vars = {
+    name: v.guestFirstName,
+    trip: v.tripTitle,
+    property: v.propertyName,
+  };
+
+  const subject = render(dict.subject, vars);
+  const greeting = render(dict.greeting, vars);
+  const body = render(dict.body, vars);
+  const fix: string = dict.fix;
+
+  return {
+    subject,
+    text:
+      `${greeting}\n\n` +
+      `${body}\n\n` +
+      `${fix}\n`,
+    html: `
+<!doctype html>
+<html><body style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;">
+  <p>${escapeHtml(greeting)}</p>
+  <p>${escapeHtml(body)}</p>
+  <p style="color:#64748b;font-size:13px;">${escapeHtml(fix)}</p>
+</body></html>`.trim(),
+  };
 }
