@@ -9,6 +9,13 @@ import type {
   HousekeepingStatus,
 } from '@prisma/client';
 
+// pg parses DATE columns as local-midnight Date objects, which shifts by the
+// host's UTC offset. Reconstruct at UTC midnight so imported values round-
+// trip identically regardless of the container's timezone.
+function toUtcMidnight(d: Date): Date {
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+}
+
 // ---------------------------------------------------------------------------
 // User
 // ---------------------------------------------------------------------------
@@ -159,8 +166,10 @@ export function mapRegistration(
 
 // ---------------------------------------------------------------------------
 // Guest
-// Note: documentType and documentNumber are required (non-nullable) in schema.
-// Schema has no dateOfBirth or nationality fields.
+// documentType and documentNumber are required (non-nullable) in schema.
+// gdprConsent is copied from the parent Registration's legacy value.
+// dateOfBirth and nationality are nullable — carried over when the legacy
+// row has them (Slovak UBYREG reporting requires both).
 // ---------------------------------------------------------------------------
 
 type LegacyGuest = {
@@ -171,11 +180,14 @@ type LegacyGuest = {
   age_category: string;
   document_type: string | null;
   document_number: string | null;
+  date_of_birth?: Date | null;
+  nationality?: string | null;
 };
 
 export function mapGuest(
   row: LegacyGuest,
   registrationId: number,
+  gdprConsent: boolean,
 ): Prisma.GuestCreateInput {
   const age: AgeCategory = row.age_category.toUpperCase() as AgeCategory;
   const mapDocType = (raw: string): DocumentType => {
@@ -189,9 +201,12 @@ export function mapGuest(
     registration: { connect: { id: registrationId } },
     firstName: row.first_name,
     lastName: row.last_name,
+    dateOfBirth: row.date_of_birth ? toUtcMidnight(row.date_of_birth) : null,
+    nationality: row.nationality ?? null,
     ageCategory: age,
     documentType: doc,
     documentNumber: row.document_number ?? '',
+    gdprConsent,
     // documentImageKey is filled after upload (task 4)
   };
 }

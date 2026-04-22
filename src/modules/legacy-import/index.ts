@@ -117,7 +117,11 @@ export async function run(opts: ImportOptions): Promise<ImportResult> {
 
     for (const row of legacyGuests) {
       const rid = regIdMap.get(row.registration_id as number)!;
-      const created = await prisma.guest.create({ data: mapGuest(row, rid) });
+      // Legacy gdpr_consent lived on the Registration row; v2 stores it per
+      // Guest. Copy the parent registration's consent flag to each child.
+      const parentReg = legacyRegs.find((r: any) => r.id === row.registration_id);
+      const consent = Boolean(parentReg?.gdpr_consent);
+      const created = await prisma.guest.create({ data: mapGuest(row, rid, consent) });
 
       if (row.document_image) {
         const reg = legacyRegs.find((r: any) => r.id === row.registration_id)!;
@@ -149,39 +153,75 @@ export async function run(opts: ImportOptions): Promise<ImportResult> {
     }
 
     // 8. Housekeeping tasks (+ collect photo upload needs)
-    //    housekeeperId is NOT NULL in schema — skip rows where legacy housekeeper_id is NULL.
+    //    housekeeperId is NOT NULL in the v2 schema. If the legacy row has no
+    //    housekeeper_id (or it doesn't map to an imported user), fall back to
+    //    the property's default PropertyHousekeeper → first linked housekeeper
+    //    → property owner. Only skip if none of those resolve (shouldn't
+    //    happen given ensureFallbackHousekeepers runs above).
     const legacyHK = await q<any>('SELECT * FROM guest_reg_housekeeping ORDER BY id');
     const hkIdMap = new Map<number, number>();
     const hkPhotoNeeds = new Map<string, { taskId: number; propertyId: number }>();
     let skippedHK = 0;
+    let fallbackHK = 0;
+
+    // Cache property → fallback housekeeper user id
+    const propertyFallbackHk = new Map<number, number>();
+    async function resolveFallbackHk(propertyId: number): Promise<number | null> {
+      if (propertyFallbackHk.has(propertyId)) return propertyFallbackHk.get(propertyId)!;
+      const link = await prisma.propertyHousekeeper.findFirst({
+        where: { propertyId },
+        orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
+        select: { housekeeperId: true },
+      });
+      if (link) {
+        propertyFallbackHk.set(propertyId, link.housekeeperId);
+        return link.housekeeperId;
+      }
+      const property = await prisma.property.findUnique({
+        where: { id: propertyId },
+        select: { ownerId: true },
+      });
+      if (property) {
+        propertyFallbackHk.set(propertyId, property.ownerId);
+        return property.ownerId;
+      }
+      return null;
+    }
 
     for (const row of legacyHK) {
+      const tid = tripIdMap.get(row.trip_id as number)!;
+      const propertyId = propertyIdMap.get(row.amenity_id as number)!;
+
+      let hkUserId: number | null = null;
       const legacyHkId = row.housekeeper_id as number | null;
-      if (!legacyHkId) {
+      if (legacyHkId !== null) hkUserId = userIdMap.get(legacyHkId) ?? null;
+
+      if (hkUserId === null) {
+        hkUserId = await resolveFallbackHk(propertyId);
+        if (hkUserId === null) {
+          console.warn(
+            `[import] Skipping housekeeping row id=${row.id as number}: no housekeeper and property ${propertyId} has no fallback`,
+          );
+          skippedHK++;
+          continue;
+        }
+        fallbackHK++;
         console.warn(
-          `[import] Skipping housekeeping row id=${row.id as number}: housekeeper_id is NULL`,
+          `[import] Housekeeping row id=${row.id as number}: assigned fallback housekeeper user ${hkUserId} (legacy housekeeper_id=${legacyHkId ?? 'NULL'})`,
         );
-        skippedHK++;
-        continue;
-      }
-      const hkUserId = userIdMap.get(legacyHkId);
-      if (!hkUserId) {
-        console.warn(
-          `[import] Skipping housekeeping row id=${row.id as number}: housekeeper user ${legacyHkId} not mapped`,
-        );
-        skippedHK++;
-        continue;
       }
 
-      const tid = tripIdMap.get(row.trip_id as number)!;
       const created = await prisma.housekeepingTask.create({
         data: mapHousekeeping(row, tid, hkUserId),
       });
       hkIdMap.set(row.id as number, created.id);
     }
 
+    if (fallbackHK > 0) {
+      console.warn(`[import] ${fallbackHK} housekeeping row(s) reassigned to a fallback housekeeper`);
+    }
     if (skippedHK > 0) {
-      console.warn(`[import] Skipped ${skippedHK} housekeeping row(s) due to NULL housekeeper_id`);
+      console.warn(`[import] Skipped ${skippedHK} housekeeping row(s) with no resolvable housekeeper`);
     }
 
     // 9. Housekeeping photos — collect upload needs

@@ -193,6 +193,8 @@ model Guest {
   registration     Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
   firstName        String
   lastName         String
+  dateOfBirth      DateTime?
+  nationality      String?      // ISO 3166-1 alpha-2
   ageCategory      AgeCategory
   documentType     DocumentType
   documentNumber   String

@@ -50,6 +50,11 @@ describe('legacy-import', () => {
     expect(alice!.documentImageKey).toMatch(
       /properties\/\d+\/guests\/\d+\/registration_1_alice\.jpg$/,
     );
+    // Legacy fields preserved: dateOfBirth + nationality on Guest,
+    // gdprConsent copied from parent Registration (mini dump sets it true).
+    expect(alice!.dateOfBirth?.toISOString().slice(0, 10)).toBe('1985-03-14');
+    expect(alice!.nationality).toBe('SK');
+    expect(alice!.gdprConsent).toBe(true);
 
     const inv1 = await pg.prisma.invoice.findFirst({
       where: { invoiceNumber: '2026-0001' },
