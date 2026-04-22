@@ -86,7 +86,7 @@ describe('email templates', () => {
       locale: 'sk',
     });
     expect(t.subject).toContain('Registrácia schválená');
-    expect(t.text).toContain('Tešíme sa na vás');
+    expect(t.text).toContain('Tešíme sa na Vás');
   });
 
   it('guestApprovedTemplate uses default locale when locale is omitted', () => {

@@ -44,7 +44,7 @@ describe('invoiceSentTemplate', () => {
     });
     expect(t.subject).toContain('Faktúra');
     expect(t.html).toContain('Splatnosť');
-    expect(t.text).toContain('Ďakujeme');
+    expect(t.text).toContain('S pozdravom');
   });
 
   it('uses Czech strings when locale is cs', () => {
