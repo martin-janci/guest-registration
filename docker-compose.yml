@@ -1,0 +1,72 @@
+# NAS deployment: /volume1/homes/mjanci/guest-registration-v2/docker-compose.yml
+# Assumes nginx-proxy + a shared MinIO container already exist on the host.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: guest_registration_v2_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data_v2:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: ${APP_IMAGE}
+    container_name: guest_registration_v2_migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    entrypoint: ["npx", "prisma", "migrate", "deploy"]
+    restart: "no"
+
+  app:
+    image: ${APP_IMAGE}
+    container_name: guest_registration_v2_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      SERVER_URL: ${SERVER_URL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      LOG_LEVEL: ${LOG_LEVEL}
+      CRON_SECRET: ${CRON_SECRET}
+      # nginx-proxy (virtual host routing)
+      VIRTUAL_HOST: airbnb.rlt.sk
+      VIRTUAL_PORT: "3000"
+      LETSENCRYPT_HOST: airbnb.rlt.sk
+    expose:
+      - "3000"
+    networks:
+      - default
+      - nginx-proxy
+
+volumes:
+  postgres_data_v2:
+
+networks:
+  nginx-proxy:
+    external: true
