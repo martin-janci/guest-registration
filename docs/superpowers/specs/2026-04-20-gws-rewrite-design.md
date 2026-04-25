@@ -33,7 +33,7 @@
 | Language | TypeScript strict | End-to-end types |
 | Database | PostgreSQL 16 (new container, separate from legacy) | Clean slate for schema redesign |
 | ORM | **Prisma** | Declarative schema, Prisma Studio for ad-hoc DB browsing, fully-typed client |
-| Auth | **Lucia v3** + argon2 + session cookie | Minimal, explicit; closest to today's Flask-Login mental model |
+| Auth | **Custom session module** (~80 LOC) + `@node-rs/argon2` + HttpOnly cookie | Lucia v3 was retired by its author in 2025; we follow the maintainer's official "copy this if you're not using Lucia" pattern: random 256-bit token → SHA-256 → stored as `Session.id`, validated per request. Minimal, explicit, no third-party auth lib to track. |
 | UI | Tailwind CSS 4 + shadcn/ui | Mobile-first, copy-pasteable components, low learning curve |
 | Forms | react-hook-form + zod | Shared schemas between client and server |
 | i18n | next-intl | Native App Router support; locales `en`, `cs`, `sk` |
@@ -83,7 +83,7 @@ guest-registration/
 │   │   └── globals.css
 │   │
 │   ├── modules/                                # Domain logic
-│   │   ├── auth/                               # Lucia adapter, password hash
+│   │   ├── auth/                               # Session module (custom), password hash, login/logout
 │   │   ├── users/                              # CRUD + soft delete
 │   │   ├── properties/                         # Formerly Amenity
 │   │   ├── calendars/                          # ICS URLs + sync state
@@ -185,11 +185,14 @@ model User {
   sessions              Session[]
 }
 
-model Session {                             // Lucia session store
+model Session {                             // SHA-256 of the session token; the raw token only ever exists in the cookie
   id        String   @id
   userId    Int
   expiresAt DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])                      // For periodic cleanup of expired sessions
 }
 
 // DOMAIN
@@ -224,6 +227,8 @@ model Calendar {
   syncIntervalMin Int        @default(60)
   createdAt       DateTime   @default(now())
   trips           Trip[]
+
+  @@index([propertyId])
 }
 
 enum TripSource { MANUAL AIRBNB_ICS WEBHOOK }
@@ -249,6 +254,11 @@ model Trip {
 
   registrations         Registration[]
   housekeepingTasks     HousekeepingTask[]
+
+  @@index([adminId])
+  @@index([propertyId])
+  @@index([calendarId])
+  @@index([startDate, endDate])           // Calendar/range queries
 }
 
 enum RegistrationStatus { PENDING APPROVED REJECTED }
@@ -263,6 +273,9 @@ model Registration {
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   guests       Guest[]
+
+  @@index([tripId])
+  @@index([status, createdAt])            // Admin pending queue
 }
 
 enum DocumentType { PASSPORT DRIVING_LICENSE CITIZEN_ID }
@@ -276,9 +289,11 @@ model Guest {
   ageCategory      AgeCategory
   documentType     DocumentType
   documentNumber   String
-  documentImageKey String?      // MinIO object key
+  documentImageKey String?      // MinIO object key; deleted by retention job (see §11.4)
   gdprConsent      Boolean      @default(false)
   createdAt        DateTime     @default(now())
+
+  @@index([registrationId])
 }
 
 // INVOICING
@@ -316,6 +331,8 @@ model InvoiceItem {
   lineTotal    Decimal @default(0) @db.Decimal(10, 2)
   vatAmount    Decimal @default(0) @db.Decimal(10, 2)
   totalWithVat Decimal @default(0) @db.Decimal(10, 2)
+
+  @@index([invoiceId])
 }
 
 // HOUSEKEEPING
@@ -335,6 +352,10 @@ model HousekeepingTask {
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   photos        HousekeepingPhoto[]
+
+  @@index([tripId])
+  @@index([housekeeperId, date])           // Housekeeper "today's tasks" query
+  @@index([date, status])                  // Admin board: today's pending/in-progress
 }
 
 model HousekeepingPhoto {
@@ -342,6 +363,8 @@ model HousekeepingPhoto {
   taskId     Int
   storageKey String                   // MinIO object key
   uploadedAt DateTime @default(now())
+
+  @@index([taskId])
 }
 
 // JOB QUEUE (in-process scheduler state)
@@ -357,6 +380,8 @@ model Job {
   lastError  String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+
+  @@index([status, runAfter])           // Polling: WHERE status = 'PENDING' AND runAfter <= now() ORDER BY runAfter
 }
 ```
 
@@ -385,9 +410,11 @@ model Job {
 5. Redirect to `/register/<confirmCode>/success`.
 
 ### 5.2 Admin login and dashboard
-1. `/login` → POST credentials → Lucia verifies argon2 hash → writes `Session` row + sets `auth_session` cookie.
-2. Middleware on `/admin/*` checks cookie; no session → 302 to `/login`.
+1. `/login` → Server Action verifies `argon2` hash → generates 32-byte random token (`crypto.getRandomValues`), stores `sha256(token)` as `Session.id` with `expiresAt = now + 30d`, writes the **raw** token to the `auth_session` HttpOnly+SameSite=Lax+Secure cookie.
+2. Middleware on `/admin/*` and `/housekeeper/*` checks the cookie is present (cheap); the route layout calls `getCurrentSession()` which re-hashes and looks up the row, validates `expiresAt`, and slides expiry within the last 15 days of life.
 3. `/admin/dashboard` Server Component queries KPIs directly via Prisma.
+
+The `modules/auth/` module exports: `hashPassword`, `verifyPassword`, `createSession(userId)`, `validateSessionToken(token)`, `invalidateSession(sessionId)`, `getCurrentSession()` (cached per request via `react/cache`). No third-party auth library.
 
 ### 5.3 Airbnb ics sync
 1. External trigger (`POST /api/cron/sync-airbnb` with shared secret) OR in-process `node-cron` every N minutes.
@@ -499,17 +526,39 @@ Target: ≥80% line coverage in `src/modules/`. Routes and components are covere
 
 ---
 
-## 11. Open questions
+## 11. Cross-cutting concerns
 
-None blocking. To be decided during implementation planning:
-- Exact invoice PDF layout (migrate current WeasyPrint template pixel-for-pixel, or redesign?)
-- PWA offline scope (housekeeper only, or also admin?)
-- Rate limiting on `/register/*` (to prevent form spam)
-- Data retention policy for guest document images (GDPR)
+### 11.1 CSRF
+- **Server Actions**: Next.js 15 enforces an `Origin` / `Host` match on Server Action POSTs by default — sufficient for the login form, registration form, and admin mutations. Verify this default has not been disabled in `next.config.ts`.
+- **Route handlers (`/admin/logout`, `/api/webhook/sync`, `/api/cron/sync-airbnb`)**: each requires either a same-origin check (logout) or a shared-secret header (`X-Cron-Secret`, `X-Webhook-Secret`). The logout handler MUST verify the request `Origin` matches the configured public host before calling `invalidateSession`; otherwise a malicious site could log users out via a cross-origin form post.
+
+### 11.2 Rate limiting
+- Public endpoints `/register/[code]` (POST), `/login` (POST), `/api/webhook/sync`: 10 req/min/IP, 30 req/min/IP+code combination, enforced by an in-process token-bucket keyed by `(ip, route)` and persisted via the `Job` table only as a fallback (no Redis). For v2 we accept that a multi-instance deployment is not on the roadmap; if it becomes one, swap to a Postgres-backed counter table.
+- Cron and webhook routes additionally require a header secret; rate limiting is a defence-in-depth.
+
+### 11.3 Cookie flags
+- `auth_session`: `HttpOnly`, `SameSite=Lax`, `Secure` (in prod), `Path=/`, no `Domain` attribute (host-only).
+- No other auth-bearing cookies. Locale cookie (next-intl) is non-sensitive.
+
+### 11.4 GDPR retention
+- Guest document images (passport / ID scans) are deleted from MinIO **30 days after the trip's `endDate`**, regardless of admin action. Implemented as a daily `Job(kind='gdpr-purge')` that lists `Guest` rows whose `Registration.Trip.endDate < now - 30d` and `documentImageKey IS NOT NULL`, deletes the MinIO object, and nulls out `documentImageKey`. The DB row itself is preserved for the host's audit/legal needs (name + document number + type only).
+- Housekeeping photos are retained for 90 days then deleted by the same job.
+- A `gdpr_purge_log` audit row is written per delete (not modeled here; emerges in the housekeeping/registrations modules).
+
+### 11.5 Multi-tenant scoping
+- Every admin query MUST filter by `adminId = currentUser.id` (or `IN (...)` for SUPERADMIN). The `modules/<domain>/queries.ts` files take `adminId` as a required first argument; route files extract it from `getCurrentSession()`. Never accept `adminId` from request input.
 
 ---
 
-## 12. Success criteria
+## 12. Open questions
+
+To be decided during implementation planning, none blocking:
+- Exact invoice PDF layout (migrate current WeasyPrint template pixel-for-pixel, or redesign?)
+- PWA offline scope (housekeeper only, or also admin?)
+
+---
+
+## 13. Success criteria
 
 The rewrite is done when:
 1. Every legacy blueprint has a corresponding v2 module with passing integration tests.
